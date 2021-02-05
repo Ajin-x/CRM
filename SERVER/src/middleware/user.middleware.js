@@ -8,11 +8,11 @@ const verifyUser = async (ctx, next) => {
     //2.判断用户名密码不能空
     if(!name||!password){
         const error = new Error(errorType.NAME_OR_PASSWORD_IS_REQUIRED)
-        console.log(error)
         return ctx.app.emit('error',error,ctx);
     }
     //3.判断这次注册的用户名有没有被注册过
     const result = await service.getUserByName(name);
+    console.log(result)
     if(result.length){
         const error = new Error(errorType.USER_ALREADY_EXISTS)
         return ctx.app.emit('error',error,ctx)

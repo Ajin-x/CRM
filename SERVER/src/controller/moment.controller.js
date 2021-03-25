@@ -14,9 +14,9 @@ class MomentController {
         const momentId = ctx.params.momentId;
         //2.根据id去查询这条数据
         const result = await momentService.getMomentById(momentId)
-        ctx.body = result
+        ctx.body = result  
     }
-    async list(ctx, next) {
+    async list(ctx, next) {  
         //1.获取数据(offset/size)
         const { offset, size } = ctx.query;
         //2.查询列表

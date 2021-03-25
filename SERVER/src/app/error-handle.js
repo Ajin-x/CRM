@@ -19,10 +19,14 @@ const errorHandle = (error, ctx) => {
             status = 400; //参数错误
             message = '密码错误'
             break;
-            case errorTypes.UNAUTHORIZATION:
-                status = 401; //参数错误
-                message = '无效的token'
-                break;
+        case errorTypes.UNAUTHORIZATION:
+            status = 401; //参数错误
+            message = '无效的token'
+            break;
+        case errorTypes.UNPERMISSION:
+            status = 401; //权限错误
+            message = '无权限'
+            break;
         default:
             status = 404;
             message = 'not found'

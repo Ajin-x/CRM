@@ -3,8 +3,8 @@ const connection = require('../app/database')
 class customerService {
     async insertCustomer(userId, customer) {
         console.log('aaa');
-        const statement = 'INSERT INTO `client` (`name`,`phone`,`email`,`type`,`desc`,`userId`) VALUES(?,?,?,?,?,?)'
-        const [result] = await connection.execute(statement, [customer.name, customer.phone, customer.email, customer.type, customer.desc, userId])
+        const statement = 'INSERT INTO `client` (`name`,`phone`,`email`,`type`,`desc`,`state`,`userId`) VALUES(?,?,?,?,?,?,?)'
+        const [result] = await connection.execute(statement, [customer.name, customer.phone, customer.email, customer.type, customer.desc,customer.state,userId])
         // console.log(result)
         return result;
     }

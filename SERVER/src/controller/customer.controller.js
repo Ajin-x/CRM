@@ -2,7 +2,7 @@ const customerService = require('../service/customer.service')
 
 class customerController {
     async create(ctx,next){
-        // ctx.body = '添加用户成功~'
+        // ctx.body = '添加客户成功~'
         //1.获取数据
         
         const userId = ctx.user.id;

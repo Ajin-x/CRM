@@ -35,6 +35,20 @@ const verifyLogin = async (ctx, next) => {
     await next();
 }
 
+//TODO : 根据用户ID查询POWER并返回
+const verifyPower = async (ctx,next)=>{
+    //  TODO:拿到用户ID
+        const id = ctx.user.id;
+    //  TODO: 根据ID去数据库查询POWER
+        const result = await service.getUserPower(id)
+    // TODO: 返回POWER及DESC
+
+    const {job} = result[0];
+    ctx.job = job;
+    await next();
+}
+
+
 const verifyAuth = async (ctx, next) => {
     console.log('验证授权的middleware')
     //1.获取token
@@ -86,5 +100,6 @@ const verifyPermission = async (ctx, next) => {
 module.exports = {
     verifyLogin,
     verifyAuth,
+    verifyPower,
     verifyPermission
 }

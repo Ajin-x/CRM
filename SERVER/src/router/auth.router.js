@@ -9,10 +9,11 @@ const {
 
 const {
     verifyLogin,
-    verifyAuth
+    verifyAuth,
+    verifyPower
 } = require('../middleware/auth.middleware')
 
-authRouter.post('/login',verifyLogin,login)
+authRouter.post('/login',verifyLogin,verifyPower,login)
 
 //验证是否授权的测试
 authRouter.get('/test',verifyAuth,success)

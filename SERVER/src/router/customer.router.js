@@ -7,18 +7,24 @@ const { verifyAuth,verifyPermission } = require('../middleware/auth.middleware')
 
 //create
 
-const { create ,customerData,update,remove} = require('../controller/customer.controller')
+const { create ,customerData,update,remove,getAllCustomers,getCustomerByName} = require('../controller/customer.controller')
 
 //增加客户
-customerRouter.post('/', verifyAuth, create)
+customerRouter.post('/', create)
+
+//获取所有客户
+customerRouter.get('/customers',getAllCustomers)
+
+//获得单个客户
+customerRouter.get('/customer',getCustomerByName)
 
 //分页获取客户信息
-customerRouter.get('/',verifyAuth,customerData)
+customerRouter.get('/',customerData)
 
 //更新客户信息
-customerRouter.patch('/:customerId',verifyAuth,verifyPermission,update)
+customerRouter.patch('/:customerId',update)
 
 //删除客户
-customerRouter.delete('/:customerId',verifyAuth,verifyPermission,remove)
+customerRouter.delete('/:customerId',remove)
 
 module.exports = customerRouter;

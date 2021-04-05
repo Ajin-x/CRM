@@ -13,7 +13,6 @@
       </el-header>
       <el-container>
         <el-aside width="200px">
-
           <!-- 左边菜单导航 -->
           <!-- 打开路由 router:true-->
           <el-menu
@@ -49,20 +48,25 @@
             active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
-            menu-trigger="click"
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>导航一</span>
+                <span>客户管理</span>
               </template>
 
               <!-- 二级导航 -->
               <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="2" class="menuHover" >
+              <el-menu-item index="/customer" class="menuHover">
                 <i class="el-icon-menu"></i>
-                <span slot="title" >导航二</span>
+                <span slot="title">客户信息</span>
+              </el-menu-item>
+
+              <!-- 流失客户 -->
+              <el-menu-item index="/customer" class="menuHover">
+                <i class="el-icon-menu"></i>
+                <span slot="title">流失客户管理</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -173,10 +177,8 @@ export default {
 }
 .el-aside {
   background: rgb(51, 55, 68);
-
 }
 .el-main {
   background: rgb(234, 237, 241);
 }
-
 </style>

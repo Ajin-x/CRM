@@ -26,7 +26,9 @@
           ></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" class="btn" @click="login">Submit</el-button>
+          <el-button type="primary" class="btn" @click="login"
+            >Submit</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -45,7 +47,7 @@ export default {
       //表单验证规则
       loginFormRul: {
         username: [
-          { required: true, message: "请输入用户名", trigger: "blur" }
+          { required: true, message: "请输入用户名", trigger: "blur" },
         ],
         password: [
           { required: true, message: "请输入活动名称", trigger: "blur" },
@@ -61,25 +63,32 @@ export default {
 
   methods: {
     //登陆
-    login(loginForm){
+     login(loginForm) {
       //登陆之前进行规则校验
-      this.$refs.loginFormRel.validate(valid=>{
-        if(!valid) return ;
-        console.log(this.loginForm)
-        this.$axios.post('login',this.loginForm).then(res=>{
-          
-          console.log(res)
-        })
-      })
-    }
+      this.$refs.loginFormRel.validate((valid) => {
+        if (!valid) return;
+        //判断登陆成功或失败
+        this.$axios.post("login", this.loginForm).then((res) => {
+          // console.log(res)
+          if (res.data.status === 200) {
+          this.$message.success(res.data.message);
+          window.localStorage.setItem('token',res.data.token)
+          //登陆成功跳转到Home页面
+          this.$router.push('/home')
+          }else{
+            this.$message.error(res.data.message)
+          }
+        });
+      });
+    },
   },
 };
 </script>
 <style lang='less' >
 .login {
   //为什么继承无效？？？
-  width: 100%;
-  height: 100%;
+  // width: 100vh;
+  height: 100vh;
   background: rgb(43, 75, 107);
 }
 .login_context {

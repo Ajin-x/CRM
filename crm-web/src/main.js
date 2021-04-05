@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import '../src/assets/cssreset.css'
+import '../src/assets/global.css'
 
 // 导入element-ui
 import ElementUI from 'element-ui';
@@ -13,6 +14,11 @@ import axios from 'axios';
 Vue.prototype.$axios = axios;
 //默认配置
 // axios.defaults.baseURL = 'http://localhost:8888'
+
+axios.interceptors.request.use(config=>{
+  config.headers.authorization = window.localStorage.getItem('token') 
+  return config
+})
 
 Vue.use(ElementUI)
 

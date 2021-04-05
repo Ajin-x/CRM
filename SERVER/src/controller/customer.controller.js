@@ -20,9 +20,7 @@ class customerController {
         const {offset,size} = ctx.query;
 
         const result = await customerService.getCustomer(offset,size)
-        // console.log(result)
         //返回数据
-        console.log(ctx.body)
         ctx.body = result;
 
     }

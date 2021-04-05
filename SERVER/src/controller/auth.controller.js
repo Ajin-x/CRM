@@ -3,6 +3,8 @@ const { PRIVATE_KEY } = require('../app/config')
 
 class AuthController {
     async login(ctx, next) {
+        let status = 200;
+        let message = '登陆成功~'
         const { id, name } = ctx.user;
         // console.log(ctx.user)
         const token = jwt.sign({ id, name }, PRIVATE_KEY, {
@@ -10,11 +12,12 @@ class AuthController {
             algorithm:'RS256'
         })
         ctx.body = {
+            status,
+            message,
             ...ctx.job,
             ...ctx.user,
             token
         }
-        // console.log(ctx.body)
     }
     async success(ctx,next){
         ctx.body = '授权成功~'

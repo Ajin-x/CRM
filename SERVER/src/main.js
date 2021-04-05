@@ -1,8 +1,8 @@
 const app = require('./app')
 require('./app/database')
 const config = require('./app/config')
-const cors = require('koa2-cors')
-app.use(cors())
+// const cors = require('koa2-cors')
+// app.use(cors())
 
 
 //端口不建议硬编码

@@ -13,6 +13,7 @@
       </el-header>
       <el-container>
         <el-aside width="200px">
+
           <!-- 左边菜单导航 -->
           <!-- 打开路由 router:true-->
           <el-menu
@@ -20,7 +21,7 @@
             class="el-menu-vertical-demo"
             background-color="rgb(51, 55, 68)"
             text-color="#fff"
-            active-text-color="#000"
+            active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
           >
@@ -28,14 +29,14 @@
             <el-submenu index="1">
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>导航一</span>
+                <span>员工管理</span>
               </template>
 
               <!-- 二级导航 -->
               <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="2">
+              <el-menu-item index="/user">
                 <i class="el-icon-menu"></i>
-                <span slot="title">导航二</span>
+                <span slot="title">管理员工信息</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -59,9 +60,9 @@
 
               <!-- 二级导航 -->
               <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="2">
+              <el-menu-item index="2" class="menuHover" >
                 <i class="el-icon-menu"></i>
-                <span slot="title">导航二</span>
+                <span slot="title" >导航二</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -118,7 +119,9 @@
             </el-submenu>
           </el-menu>
         </el-aside>
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-container>
     <!-- <button >退出</button> -->
@@ -170,8 +173,10 @@ export default {
 }
 .el-aside {
   background: rgb(51, 55, 68);
+
 }
 .el-main {
   background: rgb(234, 237, 241);
 }
+
 </style>

@@ -22,7 +22,20 @@ const routes = [
   {
     path:'/home',
     name:'Home',
-    component:Home
+    redirect:'/welcome',
+    component:Home,
+    children:[
+      {
+        path:'/user',
+        name:'User',
+        component: () => import(/* webpackChunkName: "user" */ '../components/user/user.vue')
+      },
+      {
+        path:'/welcome',
+        name:'welcome',
+        component: () => import(/* webpackChunkName: "welcome" */ '../components/welcome.vue')
+      },
+    ]
   }
 
 ]

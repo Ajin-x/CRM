@@ -9,28 +9,44 @@ const { PUBLIC_KEY } = require('../app/config')
 const verifyLogin = async (ctx, next) => {
     //1.获取用户名和密码
     const { username, password } = ctx.request.body;
+    //定义状态码及错误信息
+    let status , message;
 
     //2.判断用户名和密码是否为空
     if (!username || !password) {
         //为空的话返回一个错误信息
-        const error = new Error(errorTypes.NAME_OR_PASSWORD_IS_REQUIRED)
-        return ctx.app.emit('error', error, ctx);
+        message = '用户名或密码不能为空';
+        status = 401;
+       ctx.body ={
+           message,
+           status
+       }
+       return 
     }
-
     //3.判断用户是否存在
     const result = await service.getUserByName(username);
     const user = result[0];
     if (!user) {
-        const error = new Error(errorTypes.USER_DOES_NOT_EXISTS);
-        return ctx.app.emit('error', error, ctx);
+         message = '用户不存在';
+         status = 401;
+        ctx.body ={
+            message,
+            status
+        }
+        return 
     }
-
     // 4.判断密码是否和数据库的密码是否一致（加密）
     //为什么password是纯数字时（即不是JSON）能拿到却不能进行md5加密？
     if (md5password(password) !== user.password) {
-        const error = new Error(errorTypes.PASSWORD_IS_INCORRECT);
-        return ctx.app.emit('error', error, ctx)
+        message = '密码错误';
+        status = 401;
+       ctx.body ={
+           message,
+           status
+       }
+       return 
     }
+    // console.log(user)
     ctx.user = user;
     await next();
 }

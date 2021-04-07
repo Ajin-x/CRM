@@ -58,13 +58,51 @@ class customerController {
         };
     }
     //更新客户信息
+    async updateCustomer(ctx,next){
+        const message = '更新客户信息成功~'
+        const status = 200
+        const {customerId} =ctx.params;
+        console.log(customerId)
+        
+        //根据id 去更新数据
+        const result = await customerService.updateCustomers(customerId,ctx.request.body)
+
+        ctx.body = {
+            result,
+            message,
+            status
+        };
+          
+    }
+    //更新客户信息（将其流失）
     async update(ctx,next){
+        const message = '流失客户成功~'
+        const status = 200
         //获取数据
         const {customerId} = ctx.params;
         const {giveUpRea} =ctx.request.body
         //更新内容
         const result = await customerService.updateCustomer(giveUpRea,customerId)
-        ctx.body = result;
+        ctx.body = {
+            result, 
+            message,
+            status
+        };
+    }
+    //更新客户负责人
+    async changeUserName(ctx,next){
+        const message = '更改负责人成功~'
+        const status = 200
+        const {customerId} = ctx.params;
+        const {username} = ctx.request.body;
+        console.log(customerId,username)
+
+        const result = await customerService.changeUserName(customerId,username)
+        ctx.body = {
+            result,
+            status,
+            message
+        }
     }
     //删除客户
     async remove(ctx,next){

@@ -48,9 +48,9 @@
         </el-table-column>
         <el-table-column prop="type" label="客户类别" width="100">
         </el-table-column>
-        <el-table-column prop="desc" label="客户描述" width="380">
+        <el-table-column prop="clientDesc" label="客户描述" width="380">
         </el-table-column>
-        <el-table-column prop="userId" label="客户负责人" width="100">
+        <el-table-column prop="username" label="客户负责人" width="100">
         </el-table-column>
         <el-table-column prop="" label="操作" width="180">
           <!-- el-table-column里面要加组件 外面得加一层template  -->
@@ -66,33 +66,34 @@
                 type="primary"
                 icon="el-icon-edit"
                 size="mini"
-                @click="editUser(scope.row)"
+                @click="editCustomer(scope.row)"
               ></el-button>
             </el-tooltip>
 
             <el-tooltip
               class="item"
               effect="dark"
-              content="删除该客户"
+              content="流失该客户"
               placement="top"
             >
               <el-button
-                type="danger"
-                icon="el-icon-delete"
+                type="warning"
+                icon="el-icon-star-off"
                 size="mini"
-                @click="removeUserItem(scope.row)"
+                @click="lossCustomer(scope.row)"
               ></el-button>
             </el-tooltip>
             <el-tooltip
               class="item"
               effect="dark"
-              content="修改指派员工"
+              content="指派负责员工"
               placement="top"
             >
               <el-button
-                type="warning"
-                icon="el-icon-setting"
+                type="info"
+                icon="el-icon-message"
                 size="mini"
+                @click="editUserName(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -143,12 +144,12 @@
           <el-input v-model="addCustomerFrom.type"></el-input>
         </el-form-item>
 
-        <el-form-item label="用户描述" prop="desc">
-          <el-input v-model="addCustomerFrom.desc"></el-input>
+        <el-form-item label="用户描述" prop="clientDesc">
+          <el-input v-model="addCustomerFrom.clientDesc"></el-input>
         </el-form-item>
 
-        <el-form-item label="用户负责人" prop="userId">
-          <el-input v-model="addCustomerFrom.userId"></el-input>
+        <el-form-item label="用户负责人" prop="username">
+          <el-input v-model="addCustomerFrom.username"></el-input>
         </el-form-item>
       </el-form>
 
@@ -159,35 +160,105 @@
       </span>
     </el-dialog>
 
-    <!-- 编辑用户的对话框 -->
+    <!-- 编辑客户的对话框 -->
     <el-dialog
-      title="编辑用户"
-      :visible.sync="editUserVisible"
+      title="编辑客户"
+      :visible.sync="editCustomerVisible"
       width="50%"
       align="left"
     >
       <!-- 主题内容区 -->
       <el-form
-        :model="editUserParams"
-        :rules="editUserParamsRul"
-        ref="editUserParamsRel"
+        :model="editCustomerParams"
+        :rules="editCustomerParamsRul"
+        ref="editCustomerParamsRel"
         label-width="100px"
         class="demo-ruleForm"
       >
         <!-- prop是验证规则 -->
         <el-form-item label="用户名">
-          <el-input v-model="editUserParams.username" disabled></el-input>
+          <el-input v-model="editCustomerParams.name"></el-input>
         </el-form-item>
 
         <el-form-item label="手机" prop="phone">
-          <el-input v-model="editUserParams.phone"></el-input>
+          <el-input v-model="editCustomerParams.phone"></el-input>
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="editCustomerParams.email"></el-input>
+        </el-form-item>
+
+        <el-form-item label="用户类别" prop="type">
+          <el-input v-model="editCustomerParams.type"></el-input>
+        </el-form-item>
+
+        <el-form-item label="客户描述" prop="clientDesc">
+          <el-input v-model="editCustomerParams.clientDesc"></el-input>
         </el-form-item>
       </el-form>
 
       <!-- 底部 -->
       <span slot="footer" class="dialog-footer">
-        <el-button @click="editUserVisible = false">取 消</el-button>
-        <el-button type="primary" @click="editUserList">确 定</el-button>
+        <el-button @click="editCustomerVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editCustomerList">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 流失客户的对话框 -->
+    <el-dialog
+      title="流失客户"
+      :visible.sync="lossCustomerVisible"
+      width="50%"
+      top="200px"
+      align="left"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="lossCustomerParams"
+        :rules="lossCustomerParamsRul"
+        ref="lossCustomerParamsRel"
+        label-width="100px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="流失理由" prop="giveUpRea">
+          <el-input v-model="lossCustomerParams.giveUpRea"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="lossCustomerVisible = false">取 消</el-button>
+        <el-button type="primary" @click="lossCustomerList">确 定</el-button>
+      </span>
+    </el-dialog>
+
+    <!-- 修改负责员工的对话框 -->
+    <el-dialog
+      title="修改负责员工"
+      :visible.sync="editUserNameVisible"
+      width="50%"
+      top="200px"
+      align="left"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="editUserNameParams"
+        :rules="editUserNameParamsRul"
+        ref="editUserNameParamsRel"
+        label-width="120px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="   请指派负责人" prop="username" align="left">
+          <el-input v-model="editUserNameParams.username"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="editUserNameVisible = false">取 消</el-button>
+        <el-button type="primary" @click="editUserNameForSure">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -196,6 +267,16 @@
 <script>
 export default {
   data() {
+    //检测输入的用户类别
+    var checkType = (rule, value, cb) => {
+      console.log(rule, value, cb);
+      if (value === "一般" || value === "普通" || value === "重要") {
+        console.log("????");
+        cb();
+      } else {
+        cb(new Error("请输入 一般/普通/重要 三个类别之一"));
+      }
+    };
     //验证邮箱
     var checkEmail = (rule, value, cb) => {
       const regEmail = /^\w+@\w+(\.\w+)+$/;
@@ -236,8 +317,8 @@ export default {
         phone: "",
         email: "",
         type: "",
-        desc: "",
-        userId: "",
+        clientDesc: "",
+        username: "",
       },
       //添加用户验证规则
       addCustomerFromRul: {
@@ -265,19 +346,40 @@ export default {
           },
           { validator: checkEmail, trigger: "blur" },
         ],
-        type: [{ required: true, message: "请输入客户类别", trigger: "blur" }],
-        desc: [{ required: true, message: "请输入用户描述", trigger: "blur" }],
-        userId: [
+        type: [
+          { required: true, message: "请输入客户类别", trigger: "blur" },
+          {
+            validator: checkType,
+            trigger: "blur",
+          },
+        ],
+        clientDesc: [
+          { required: true, message: "请输入用户描述", trigger: "blur" },
+        ],
+        username: [
           { required: true, message: "请输入用户负责人", trigger: "blur" },
         ],
       },
       //存储获取到当前要编辑的用户信息
-      editUserParams: {
-        username: "",
+      editCustomerParams: {
+        id: 0,
+        name: "",
         phone: "",
+        email: "",
+        type: "",
+        clientDesc: "",
       },
-      //修改用户信息dialog的规则
-      editUserParamsRul: {
+      //控制修改用户的显示隐藏
+      editCustomerVisible: false,
+      //修改客户信息dialog的规则
+      editCustomerParamsRul: {
+        name: [
+          {
+            required: true,
+            message: "请输入用户名",
+            trigger: "blur",
+          },
+        ],
         phone: [
           {
             required: true,
@@ -287,9 +389,51 @@ export default {
           ,
           { validator: checkMobile, trigger: "blur" },
         ],
+        email: [
+          {
+            required: true,
+            message: "请输入邮箱",
+            trigger: "blur",
+          },
+          { validator: checkEmail, trigger: "blur" },
+        ],
+        type: [
+          { required: true, message: "请输入客户类别", trigger: "blur" },
+          {
+            validator: checkType,
+            trigger: "blur",
+          },
+        ],
+        clientDesc: [
+          { required: true, message: "请输入用户描述", trigger: "blur" },
+        ],
       },
-      //控制修改用户的显示隐藏
-      editUserVisible: false,
+
+      //存储客户流失的对话框显示隐藏
+      lossCustomerVisible: false,
+      //存储当前要流失的客户信息
+      lossCustomerParams: {
+        id: 0,
+        giveUpRea: "",
+      },
+      //要流失客户的表单信息验证
+      lossCustomerParamsRul: {
+        giveUpRea: [
+          { required: true, message: "请输入流失客户的理由", trigger: "blur" },
+        ],
+      },
+      //控制指派员工对话框的显示隐藏
+      editUserNameVisible: false,
+      //指派负责员工的信息
+      editUserNameParams: {
+        customerId: 0,
+        username: "",
+      },
+      editUserNameParamsRul: {
+        username: [
+          { required: true, message: "请输入指派的员工", trigger: "blur" },
+        ],
+      },
     };
   },
 
@@ -356,24 +500,82 @@ export default {
       //重置表单
       this.$refs.addCustomerFromRef.resetFields();
     },
-    //点击编辑按钮 编辑用户信息
-    editUser(row) {
-      const username = { username: row.username };
-      console.log(username);
-      this.$axios.get("/users/user", { params: username }).then((res) => {
+    //点击编辑按钮 编辑客户信息
+    editCustomer(row) {
+      const name = { name: row.name };
+      console.log(name);
+      this.$axios.get("/customer/customer", { params: name }).then((res) => {
         console.log(res);
-        this.editUserParams.username = res.data.result[0].username;
-        this.editUserParams.phone = res.data.result[0].phone;
-        this.editUserVisible = !this.editUserVisible;
+        this.editCustomerParams.id = res.data.result[0].id;
+        this.editCustomerParams.name = res.data.result[0].name;
+        this.editCustomerParams.phone = res.data.result[0].phone;
+        this.editCustomerParams.email = res.data.result[0].email;
+        this.editCustomerParams.type = res.data.result[0].type;
+        this.editCustomerParams.clientDesc = res.data.result[0].clientDesc;
+        this.editCustomerVisible = !this.editCustomerVisible;
       });
     },
     //点击确定编辑用户按钮 发送后台请求
-    editUserList() {
-      this.$axios.patch("/users", this.editUserParams).then((res) => {
-        this.$message.success(res.data.message);
-        this.editUserVisible = !this.editUserVisible;
-        this.getCustomerList();
-      });
+    editCustomerList() {
+      this.$axios
+        .patch(
+          `/customer/customerData/${this.editCustomerParams.id}`,
+          this.editCustomerParams
+        )
+        .then((res) => {
+          this.$message.success(res.data.message);
+          this.editCustomerVisible = !this.editCustomerVisible;
+          this.getCustomerList();
+        });
+    },
+
+    //点击BUTTON打开流失用户表单
+    lossCustomer(row) {
+      console.log(row.id);
+      this.lossCustomerVisible = !this.lossCustomerVisible;
+      this.lossCustomerParams.id = row.id;
+    },
+    //点击确定流失客户
+    lossCustomerList() {
+      console.log(
+        this.lossCustomerParams.id,
+        this.lossCustomerParams.giveUpRea
+      );
+      this.$axios
+        .patch(
+          `/customer/${this.lossCustomerParams.id}`,
+          this.lossCustomerParams
+        )
+        .then((res) => {
+          if (res.data.status == 200) {
+            this.$message.success(res.data.message);
+            this.lossCustomerVisible = !this.lossCustomerVisible;
+            this.getAllCustomers();
+          }
+        });
+    },
+
+    //点击BUTTON打开指派员工
+    editUserName(row) {
+      this.editUserNameVisible = !this.editUserNameVisible;
+      this.editUserNameParams.customerId = row.id;
+      this.editUserNameParams.username = row.username;
+    },
+    //点击确定更改负责员工
+    editUserNameForSure() {
+      this.$axios
+        .patch(
+          `/customer/username/${this.editUserNameParams.customerId}`,
+          this.editUserNameParams
+        )
+        .then((res) => {
+          if (res.data.status === 200) {
+            this.$message.success(res.data.message);
+            this.getAllCustomers();
+            this.getCustomerList();
+          }
+        });
+      this.editUserNameVisible = !this.editUserNameVisible;
     },
     //删除用户
     removeUserItem(row) {

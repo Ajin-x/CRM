@@ -16,14 +16,14 @@ class customerService {
         const statement = `
         SELECT * FROM client WHERE name = ? 
         `
-        const result = await connection.execute(statement,[name]);
+        const result = await connection.execute(statement, [name]);
         return result[0];
 
     }
     //获取所有客户信息
     async getAllCustomers() {
         const statement = `
-        SELECT * FROM client 
+        SELECT * FROM client WHERE state = 0
         `
         const result = await connection.execute(statement);
         return result[0];
@@ -32,7 +32,7 @@ class customerService {
     //分页获取客户
     async getCustomer(offset, size) {
         const statement = `
-            SELECT * FROM client 
+            SELECT * FROM client WHERE state = 0
             LIMIT ?,?
     ;`;
 
@@ -43,15 +43,37 @@ class customerService {
         return result[0];
     }
     //更新客户信息
-    async updateCustomer(giveUpRea, id) {
-        console.log('aaa')
+    async updateCustomers(id, body) {
+        console.log(body)
+        const { name, phone, email, type, clientDesc } = body;
+
         const statement = `
-        UPDATE client SET giveUpRea = ? WHERE id = ?
+        UPDATE client SET name = ?,phone=?,email=?,type=?,clientDesc=? WHERE id = ?
+        `
+        // console.log(id, name, phone, email, type, desc )
+
+        const [result] = await connection.execute(statement, [body.name, body.phone, body.email, body.type, body.clientDesc, id])
+        console.log(result) 
+        return result;
+
+    } 
+    //更新客户信息（将其流失）  
+    async updateCustomer(giveUpRea, id) {
+        console.log(giveUpRea,id)
+        const statement = `
+        UPDATE client SET giveUpRea = ? , state = 1 WHERE id = ?
         `
         const [result] = await connection.execute(statement, [giveUpRea, id])
         return result;
     }
-    //删除客户
+    //更新指派的员工
+    async changeUserName(customerId,username){
+        const statement = `
+        UPDATE client SET username = ?  WHERE id = ?
+        `
+        const [result] = await connection.execute(statement, [username,customerId])
+    }
+    //删除客户 
     async remove(customerId) {
         const statement = `
             DELETE FROM client WHERE id = ?

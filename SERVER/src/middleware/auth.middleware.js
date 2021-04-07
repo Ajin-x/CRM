@@ -45,8 +45,8 @@ const verifyLogin = async (ctx, next) => {
            status
        }
        return 
-    }
-    // console.log(user)
+    } 
+    // console.log(user) 
     ctx.user = user;
     await next();
 }

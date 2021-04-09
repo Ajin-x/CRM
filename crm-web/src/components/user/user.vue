@@ -40,7 +40,7 @@
         <el-table-column prop="username" label="用户名" width="180">
         </el-table-column>
         <el-table-column prop="phone" label="电话"> </el-table-column>
-        <el-table-column prop="job_id" label="职务" width="180">
+        <el-table-column prop="jobName" label="职务" width="180">
         </el-table-column>
         <el-table-column prop="superior_name" label="上级" width="180">
         </el-table-column>
@@ -75,18 +75,18 @@
                 @click="removeUserItem(scope.row)"
               ></el-button>
             </el-tooltip>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              content="修改角色"
-              placement="top"
-            >
-              <el-button
-                type="warning"
-                icon="el-icon-setting"
-                size="mini"
-              ></el-button>
-            </el-tooltip>
+            <!-- <el-tooltip
+                class="item"
+                effect="dark"
+                content="修改角色"
+                placement="top"
+              >
+                <el-button
+                  type="warning"
+                  icon="el-icon-setting"
+                  size="mini"
+                ></el-button>
+              </el-tooltip> -->
             <el-tooltip
               class="item"
               effect="dark"
@@ -97,6 +97,7 @@
                 type="warning"
                 icon="el-icon-setting"
                 size="mini"
+                @click="changeSuperior(scope.row)"
               ></el-button>
             </el-tooltip>
           </template>
@@ -143,8 +144,8 @@
           <el-input v-model="addUserFrom.phone"></el-input>
         </el-form-item>
 
-        <el-form-item label="角色" prop="job_id">
-          <el-input v-model="addUserFrom.job_id"></el-input>
+        <el-form-item label="角色" prop="jobName">
+          <el-input v-model="addUserFrom.jobName"></el-input>
         </el-form-item>
 
         <el-form-item label="部门号" prop="department_id">
@@ -169,6 +170,7 @@
       :visible.sync="editUserVisible"
       width="50%"
       align="left"
+      top="200px"
     >
       <!-- 主题内容区 -->
       <el-form
@@ -194,6 +196,37 @@
         <el-button type="primary" @click="editUserList">确 定</el-button>
       </span>
     </el-dialog>
+
+    <!-- 修改直属上级对话框 -->
+    <el-dialog
+      title="修改直属上级"
+      :visible.sync="changeSuperiorVisible"
+      width="50%"
+      align="left"
+      top="200px"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="changeSuperiorParams"
+        :rules="changeSuperiorParamsRul"
+        ref="editUserParamsRel"
+        label-width="100px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="上级名" prop="superior_name">
+          <el-input v-model="changeSuperiorParams.superior_name"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeSuperiorVisible = false">取 消</el-button>
+        <el-button type="primary" @click="changeSuperiorForSure"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -213,8 +246,13 @@ export default {
       input3: "",
       //请求用户列表的参数
       queryInfo: {
+        id: this.$store.state.userData.id,
         offset: 0,
         size: 5,
+      },
+      //传递给后台的userName
+      userName: {
+        userName: "",
       },
       username: {
         username: "",
@@ -230,7 +268,7 @@ export default {
         username: "",
         password: "",
         phone: "",
-        job_id: "",
+        jobName: "",
         department_id: "",
         superior_name: "",
       },
@@ -260,7 +298,7 @@ export default {
           ,
           { validator: checkMobile, trigger: "blur" },
         ],
-        job_id: [
+        jobName: [
           { required: true, message: "请输入该用户角色", trigger: "blur" },
         ],
         department_id: [
@@ -289,6 +327,22 @@ export default {
       },
       //控制修改用户的显示隐藏
       editUserVisible: false,
+      //控制修改上级的显示隐藏
+      changeSuperiorVisible: false,
+      //修改上级的参数
+      changeSuperiorParams: {
+        id: 0,
+        superior_name: "",
+      },
+      changeSuperiorParamsRul: {
+        superior_name: [
+          {
+            required: true,
+            message: "请输入上级名称",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
 
@@ -308,17 +362,41 @@ export default {
     },
     //请求用户列表数据
     getUserList() {
-      this.$axios.get("/users", { params: this.queryInfo }).then((res) => {
-        if (res.data.status === 200) this.userList = res.data.result;
-        // this.total == 0 ? (this.total = res.data.result.length) : this.total;
+      this.$axios.get(`/users/`, { params: this.queryInfo }).then((res) => {
+        if (res.data.status === 200) {
+          const result = res.data.result.map((item, index) => {
+            return Object.assign(
+              res.data.result[index].user,
+              res.data.result[index].job
+            );
+          });
+          this.userList = result;
+          // console.log(this.userList);
+          this.total == 0 ? (this.total = res.data.result.length) : this.total;
+        }
       });
     },
     //获得所有用户数据
     getAllUser() {
-      this.$axios.get("/users/users").then((res) => {
-        if (res.data.status === 200) this.userList = res.data.result;
-        this.total == 0 ? (this.total = res.data.result.length) : this.total;
-      });
+      this.userName.userName = this.$store.state.userData.username;
+      // console.log(this.userName)
+      this.$axios
+        .get(`/users/users/${this.$store.state.userData.id}`)
+        .then((res) => {
+          if (res.data.status === 200) {
+            const result = res.data.result.map((item, index) => {
+              return Object.assign(
+                res.data.result[index].user,
+                res.data.result[index].job
+              );
+            });
+            this.userList = result;
+            // console.log(this.userList);
+            this.total == 0
+              ? (this.total = res.data.result.length)
+              : this.total;
+          }
+        });
     },
     //当每页数据发生改变时触发
     SizeChange(newValue) {
@@ -338,7 +416,7 @@ export default {
       this.$refs.addUserFromRef.validate((valid) => {
         if (!valid) return alert("请输入正确信息");
         this.$axios.post("/users", this.addUserFrom).then((res) => {
-          console.log(res);
+          // console.log(res);
         });
         //关闭对话框
         this.addUserVisible = !this.addUserVisible;
@@ -354,9 +432,9 @@ export default {
     //点击编辑按钮 编辑用户信息
     editUser(row) {
       const username = { username: row.username };
-      console.log(username);
+      // console.log(username);
       this.$axios.get("/users/user", { params: username }).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.editUserParams.username = res.data.result[0].username;
         this.editUserParams.phone = res.data.result[0].phone;
         this.editUserVisible = !this.editUserVisible;
@@ -372,6 +450,12 @@ export default {
     },
     //删除用户
     removeUserItem(row) {
+      const { power } = this.$store.state.userData;
+      console.log(power);
+      if (power == "usermy") {
+        this.$message.error("您没有相关权限！");
+        return;
+      }
       this.$confirm("此操作将永久删除该用户, 是否继续?", "删除用户", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -379,13 +463,13 @@ export default {
       })
         .then(() => {
           //点击确定发送后台请求，删除该用户
-          console.log(row.id)
+          // console.log(row.id);
           this.$axios.delete(`/users/${row.id}`).then((res) => {
             this.$message({
               type: "success",
               message: "删除成功!",
             });
-          this.getUserList();
+            this.getUserList();
           });
         })
         .catch(() => {
@@ -394,6 +478,29 @@ export default {
             type: "info",
             message: "已取消删除",
           });
+        });
+    },
+    //点击弹出修改上级的对哈框
+    changeSuperior(row) {
+      const { power } = this.$store.state.userData;
+      console.log(power);
+      if (power !== "systemall") {
+        this.$message.error("您没有相关权限！");
+        return;
+      }
+      this.changeSuperiorParams.id = row.id;
+      this.changeSuperiorVisible = !this.changeSuperiorVisible;
+    },
+    changeSuperiorForSure() {
+      this.$axios
+        .patch(
+          `/users/changeSuperior/${this.changeSuperiorParams.id}`,
+          this.changeSuperiorParams
+        )
+        .then((res) => {
+          this.getAllUser();
+          this.getUserList();
+          this.changeSuperiorVisible = !this.changeSuperiorVisible;
         });
     },
   },

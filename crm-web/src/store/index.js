@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    userData: window.sessionStorage.getItem('userData') ? JSON.parse(window.sessionStorage.getItem('userData')) : '',
   },
   mutations: {
   },

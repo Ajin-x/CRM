@@ -269,9 +269,9 @@ export default {
   data() {
     //检测输入的用户类别
     var checkType = (rule, value, cb) => {
-      console.log(rule, value, cb);
+      // console.log(rule, value, cb);
       if (value === "一般" || value === "普通" || value === "重要") {
-        console.log("????");
+        // console.log("????");
         cb();
       } else {
         cb(new Error("请输入 一般/普通/重要 三个类别之一"));
@@ -299,6 +299,7 @@ export default {
       input3: "",
       //请求用户列表的参数
       queryInfo: {
+        username: this.$store.state.userData.username,
         offset: 0,
         size: 5,
       },
@@ -456,7 +457,7 @@ export default {
     //请求用户列表数据
     getCustomerList() {
       this.$axios.get("/customer", { params: this.queryInfo }).then((res) => {
-        console.log(res);
+        // console.log(res);
 
         if (res.data.status === 200) this.customerList = res.data.result;
         // this.total == 0 ? (this.total = res.data.result.length) : this.total;
@@ -487,12 +488,13 @@ export default {
       this.$refs.addCustomerFromRef.validate((valid) => {
         if (!valid) return alert("请输入正确信息");
         this.$axios.post("/customer", this.addCustomerFrom).then((res) => {
-          console.log(res);
+          // console.log(res);
         });
+        //刷新列表
+        this.getAllCustomers();
+        this.getCustomerList();
         //关闭对话框
         this.addCustomerVisible = !this.addCustomerVisible;
-        //刷新列表
-        this.getCustomerList();
       });
     },
     //关闭对话框时清空数据
@@ -503,9 +505,9 @@ export default {
     //点击编辑按钮 编辑客户信息
     editCustomer(row) {
       const name = { name: row.name };
-      console.log(name);
+      // console.log(name);
       this.$axios.get("/customer/customer", { params: name }).then((res) => {
-        console.log(res);
+        // console.log(res);
         this.editCustomerParams.id = res.data.result[0].id;
         this.editCustomerParams.name = res.data.result[0].name;
         this.editCustomerParams.phone = res.data.result[0].phone;
@@ -531,16 +533,15 @@ export default {
 
     //点击BUTTON打开流失用户表单
     lossCustomer(row) {
-      console.log(row.id);
       this.lossCustomerVisible = !this.lossCustomerVisible;
       this.lossCustomerParams.id = row.id;
     },
     //点击确定流失客户
     lossCustomerList() {
-      console.log(
-        this.lossCustomerParams.id,
-        this.lossCustomerParams.giveUpRea
-      );
+      // console.log(
+      //   this.lossCustomerParams.id,
+      //   this.lossCustomerParams.giveUpRea
+      // );
       this.$axios
         .patch(
           `/customer/${this.lossCustomerParams.id}`,
@@ -557,6 +558,12 @@ export default {
 
     //点击BUTTON打开指派员工
     editUserName(row) {
+      const { power } = this.$store.state.userData;
+      console.log(power)
+      if (power == "customermy") {
+        this.$message.error("您没有相关权限！");
+        return;
+      }
       this.editUserNameVisible = !this.editUserNameVisible;
       this.editUserNameParams.customerId = row.id;
       this.editUserNameParams.username = row.username;
@@ -605,6 +612,52 @@ export default {
     },
   },
   created() {
+    const { power, username } = this.$store.state.userData;
+    // console.log(power);
+    // console.log(this.$store.state.userData.username)
+    if (power == "customerall") {
+      this.getAllCustomers = function () {
+        this.$axios
+          .get(`/customer/getMangerCustomer`, { params: this.queryInfo })
+          .then((res) => {
+            if (res.data.status === 200) this.customerList = res.data.result;
+            this.total == 0
+              ? (this.total = res.data.result.length)
+              : this.total;
+          });
+      };
+      this.getCustomerList = function () {
+        this.$axios
+          .get("/customer/getMangerCustomerList", { params: this.queryInfo })
+          .then((res) => {
+            // console.log(res);
+
+            if (res.data.status === 200) this.customerList = res.data.result;
+            // this.total == 0 ? (this.total = res.data.result.length) : this.total;
+          });
+      };
+    } else if (power == "customermy") {
+      this.getAllCustomers = function () {
+        this.$axios
+          .get(`/customer/getStaffCustomer`, { params: this.queryInfo })
+          .then((res) => {
+            if (res.data.status === 200) this.customerList = res.data.result;
+            this.total == 0
+              ? (this.total = res.data.result.length)
+              : this.total;
+          });
+      };
+      this.getCustomerList = function () {
+        this.$axios
+          .get("/customer/getStaffCustomerList", { params: this.queryInfo })
+          .then((res) => {
+            // console.log(res);
+
+            if (res.data.status === 200) this.customerList = res.data.result;
+            // this.total == 0 ? (this.total = res.data.result.length) : this.total;
+          });
+      };
+    }
     this.getAllCustomers();
     this.getCustomerList();
   },

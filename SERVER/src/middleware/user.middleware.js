@@ -13,6 +13,7 @@ const verifyUser = async (ctx, next) => {
     }
     //3.判断这次注册的用户名有没有被注册过
     const result = await service.getUserByName(username);
+    console.log(result)
     // console.log(result)
     if(result.length){
         const error = new Error(errorType.USER_ALREADY_EXISTS)

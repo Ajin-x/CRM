@@ -11,14 +11,36 @@ class delCustomer{
         const result =await delCustomerService.addDelCustomer(userId,delCustomer)
         ctx.body = result;
     }
+    //获得全部被删客户信息
+    async getDelCustomer(ctx,next){
+        const status = 200;
+        const message = '获得全部数据成功~'
+
+        let result = await delCustomerService.getDelCustomer()
+
+        
+        ctx.body = {
+            result,
+            status,
+            message
+        }
+    }
+
     async delCustomerList(ctx,next){
+        const status = 200;
+        const message = '分页获得数据成功~'
+
         // TODO : 获取offset size
         let {offset,size} = ctx.query;
 
         // todo 在数据库中查询获取，返回
         let result =await delCustomerService.delCustomerList(offset,size)
         console.log(result.length)
-        ctx.body = result;
+        ctx.body = {
+            result,
+            status,
+            message
+        }
     }
     async removeDelCustomer(ctx,next){
         // todo 拿到恢复ID

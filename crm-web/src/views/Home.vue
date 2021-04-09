@@ -7,7 +7,14 @@
           <img src="../assets/logo.png" alt="" />
           <span>CRM客户管理系统</span>
         </div>
+
         <div>
+          <span class="headSpan"
+            >您好，{{ this.$store.state.userData.username }}</span
+          >
+          <span class="headSpan"
+            >您的职位是，{{ this.$store.state.userData.jobName }}</span
+          >
           <el-button type="primary" @click="loginOut">登出</el-button>
         </div>
       </el-header>
@@ -23,6 +30,7 @@
             active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
+            v-if='isCustomer'
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
@@ -48,6 +56,7 @@
             active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
+            v-if="isService"
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
@@ -64,7 +73,7 @@
               </el-menu-item>
 
               <!-- 流失客户 -->
-              <el-menu-item index="/customer" class="menuHover">
+              <el-menu-item index="/lossCustomer" class="menuHover">
                 <i class="el-icon-menu"></i>
                 <span slot="title">流失客户管理</span>
               </el-menu-item>
@@ -80,45 +89,20 @@
             :unique-opened="true"
             :router="true"
             menu-trigger="click"
+            v-if="isAdmin"
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
               <template slot="title">
                 <i class="el-icon-location"></i>
-                <span>导航一</span>
+                <span>信息维护</span>
               </template>
 
               <!-- 二级导航 -->
               <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="2">
+              <el-menu-item index="/delCustomer">
                 <i class="el-icon-menu"></i>
-                <span slot="title">导航二</span>
-              </el-menu-item>
-            </el-submenu>
-          </el-menu>
-
-          <el-menu
-            default-active="1"
-            class="el-menu-vertical-demo"
-            background-color="rgb(51, 55, 68)"
-            text-color="#fff"
-            active-text-color="#409EFF"
-            :unique-opened="true"
-            :router="true"
-            menu-trigger="click"
-          >
-            <!-- 一级导航 -->
-            <el-submenu index="1">
-              <template slot="title">
-                <i class="el-icon-location"></i>
-                <span>导航一</span>
-              </template>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="2">
-                <i class="el-icon-menu"></i>
-                <span slot="title">导航二</span>
+                <span slot="title">维护管理</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
@@ -135,7 +119,15 @@
 <script>
 export default {
   data() {
-    return {};
+    return {
+      isCustomer:
+        this.$store.state.userData.power == "customerall" ||
+        this.$store.state.userData.power == "customermy"
+          ? false
+          : true,
+      isAdmin:this.$store.state.userData.power=='systemall' ? true:false,
+      isService:this.$store.state.userData.power=='userall'||this.$store.state.userData.power=='usermy'?false:true
+    }
   },
 
   components: {},
@@ -148,11 +140,17 @@ export default {
       this.$router.push("/login");
     },
   },
+  created() {
+    // console.log(this.$store.state.userData);
+  },
 };
 </script>
 <style lang='less' scoped>
 .home {
   height: 100vh;
+}
+.headSpan {
+  margin-right: 50px;
 }
 .el-container {
   height: 100%;

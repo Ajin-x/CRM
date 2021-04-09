@@ -3,6 +3,7 @@ const { PRIVATE_KEY } = require('../app/config')
 
 class AuthController {
     async login(ctx, next) {
+        console.log('也走到了这里')
         let status = 200;
         let message = '登陆成功~'
         const { id, name } = ctx.user;

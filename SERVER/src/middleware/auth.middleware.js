@@ -37,6 +37,8 @@ const verifyLogin = async (ctx, next) => {
     }
     // 4.判断密码是否和数据库的密码是否一致（加密）
     //为什么password是纯数字时（即不是JSON）能拿到却不能进行md5加密？
+    console.log(md5password(password))
+    console.log(user.password)
     if (md5password(password) !== user.password) {
         message = '密码错误';
         status = 401;
@@ -53,6 +55,7 @@ const verifyLogin = async (ctx, next) => {
 
 //TODO : 根据用户ID查询POWER并返回
 const verifyPower = async (ctx,next)=>{
+    console.log('走到了这里')
     //  TODO:拿到用户ID
         const id = ctx.user.id;
     //  TODO: 根据ID去数据库查询POWER

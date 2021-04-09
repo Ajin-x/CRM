@@ -3,10 +3,13 @@ const { prefix } = require('./customer.router')
 
 const delRouter = new Router({prefix:'/delCustomer'});
 
-const {addDelCustomer,delCustomerList ,removeDelCustomer} = require('../controller/delCustomer.controller')
+const {addDelCustomer,delCustomerList ,removeDelCustomer,getDelCustomer} = require('../controller/delCustomer.controller')
 
 //增加被删客户
 delRouter.post('/:userId',addDelCustomer)
+
+//获得全部客户信息
+delRouter.get('/delCustomers',getDelCustomer)
 
 //分页获取被删客户信息
 delRouter.get('/',delCustomerList)

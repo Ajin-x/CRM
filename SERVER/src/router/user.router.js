@@ -5,6 +5,7 @@ const {
     getUserList,
     getAllUser,
     update,
+    changeSuperior,
     remove
  } = require('../controller/user.controller')
 
@@ -25,11 +26,14 @@ userRouter.get('/user',getUserDetail)
 userRouter.get('/',getUserList)
 
 // 获取所有用户
-userRouter.get('/users',getAllUser)
+userRouter.get('/users/:id',getAllUser) 
 
-//更新用户信息
+//更新用户上级
+userRouter.patch('/changeSuperior/:id',changeSuperior)
+
+//更新用户信息 
 userRouter.patch('/',update)
-
+  
 //删除用户信息
 userRouter.delete('/:id',remove)
 

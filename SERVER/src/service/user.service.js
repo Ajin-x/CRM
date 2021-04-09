@@ -13,19 +13,30 @@ class UserService {
     }
 
     async getUserByName(username) {
-        console.log(username)
         const statement = `SELECT * FROM user where username = ?;`;
         const result = await connection.execute(statement, [username]);
         //result是一个数组 第一项是用户名 第二项是一堆其他的信息
         //result[0]拿到的也是一个数组
-        console.log(result[0])
         return result[0];
     }
 
+    async getJobId(user){
+        const {jobName} = user;
+        const statement = `
+        SELECT id FROM job WHERE name = ? 
+        `
+
+        const result = await connection.execute(statement,[jobName])
+        console.log(result[0])
+
+        return result[0]
+    }
+
     async getUserPower(id) {
+        console.log(id)
         const statement = `SELECT JSON_OBJECT('jobName',j.name,'power',j.power) job
         FROM job j
-        LEFT JOIN user u ON j.id = u.id
+        LEFT JOIN user u ON j.id = u.job_id
         WHERE u.id = ?`
 
         const result = await connection.execute(statement, [id]);
@@ -46,9 +57,12 @@ class UserService {
         return result[0];
     }
 
-    async getUserList(offset,size){
+    async getUserList(username,offset,size){
         const statement = `
-        SELECT * FROM user 
+        SELECT JSON_OBJECT('jobName',j.name) job , 
+        JSON_OBJECT('id',u.id,'username',u.username,'phone',u.phone,'jobId',job_id,'superior_name',u.superior_name) user
+        FROM job j
+        RIGHT JOIN user u ON j.id = u.job_id
         LIMIT ?,?
         `
         const result = await connection.execute(statement, [offset,size]);
@@ -56,21 +70,36 @@ class UserService {
         //result[0]拿到的也是一个数组
         return result[0];
     }
-    async getAllUser(){
+    async getAllUser(username){
         const statement = `
-        SELECT * FROM user 
+        SELECT JSON_OBJECT('jobName',j.name) job , 
+        JSON_OBJECT('id',u.id,'username',u.username,'phone',u.phone,'jobId',job_id,'superior_name',u.superior_name) user
+        FROM job j
+        RIGHT JOIN user u ON j.id = u.job_id
         `
         const result = await connection.execute(statement);
         //result是一个数组 第一项是用户名 第二项是一堆其他的信息
-        //result[0]拿到的也是一个数组
+        //result[0]拿到的也是一个数组 
         return result[0];
     }
+    //更新
     async update(phone,username){
         const statement = `
         UPDATE user SET phone = ? WHERE username = ?
         `
 
         const result = await connection.execute(statement,[phone,username])
+    }
+    //修改上级
+    async changeSuperior(id,ctx){
+        console.log(id,ctx.request.body) 
+        const statement = `
+        UPDATE user SET superior_name = ? WHERE id = ?
+        `
+
+        const result = await connection.execute(statement,[ctx.request.body.superior_name,id])
+
+        return result;
     }
     async remove(id){
         const statement = `
@@ -79,6 +108,14 @@ class UserService {
         const [result] = await connection.execute(statement,[id]);
         return result;
     }
+    //根据id 获得username
+    async getUserName(id){
+        const statement=`
+        SELECT username FROM user WHERE id = ?
+        `
+        const [result] = await connection.execute(statement,[id]);
+        return result;
+    }
 }
 
-module.exports = new UserService();
+module.exports = new UserService(); 

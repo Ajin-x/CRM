@@ -69,9 +69,11 @@ export default {
         if (!valid) return;
         //判断登陆成功或失败
         this.$axios.post("login", this.loginForm).then((res) => {
-          // console.log(res)
+          console.log(res)
           if (res.data.status === 200) {
           this.$message.success(res.data.message);
+          this.$store.state.userData = res.data
+          window.sessionStorage.setItem('userData',JSON.stringify(res.data))
           window.localStorage.setItem('token',res.data.token)
           //登陆成功跳转到Home页面
           this.$router.push('/home')

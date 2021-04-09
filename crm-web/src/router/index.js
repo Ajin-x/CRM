@@ -40,6 +40,16 @@ const routes = [
         name:'Customer',
         component: () => import(/* webpackChunkName: "customer" */ '../components/customer/customer.vue')
       },
+      {
+        path:'/lossCustomer',
+        name:'lossCustomer',
+        component: () => import(/* webpackChunkName: "losscustomer" */ '../components/customer/lossCustomer.vue')
+      },
+      {
+        path:'/delCustomer',
+        name:'delCustomer',
+        component: () => import(/* webpackChunkName: "delCustomer" */ '../components/customer/delCustomer.vue')
+      },
     ]
   }
 

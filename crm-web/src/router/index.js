@@ -50,6 +50,11 @@ const routes = [
         name:'delCustomer',
         component: () => import(/* webpackChunkName: "delCustomer" */ '../components/customer/delCustomer.vue')
       },
+      {
+        path:'/customerData',
+        name:'customerData',
+        component: () => import(/* webpackChunkName: "customerData" */ '../components/customer/customerData.vue')
+      },
     ]
   }
 

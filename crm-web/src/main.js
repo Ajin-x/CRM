@@ -15,6 +15,10 @@ Vue.prototype.$axios = axios;
 //默认配置
 // axios.defaults.baseURL = 'http://localhost:8888'
 
+//引入echarts
+import * as echarts from "echarts";
+Vue.prototype.$echarts = echarts;
+
 axios.interceptors.request.use(config=>{
   config.headers.authorization = window.localStorage.getItem('token') 
   return config

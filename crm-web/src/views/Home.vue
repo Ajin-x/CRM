@@ -30,7 +30,7 @@
             active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
-            v-if='isCustomer'
+            v-if="isCustomer"
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
@@ -77,6 +77,12 @@
                 <i class="el-icon-menu"></i>
                 <span slot="title">流失客户管理</span>
               </el-menu-item>
+
+              <!-- 数据分析 -->
+              <el-menu-item index="/customerData" class="menuHover">
+                <i class="el-icon-menu"></i>
+                <span slot="title">数据分析</span>
+              </el-menu-item>
             </el-submenu>
           </el-menu>
 
@@ -107,9 +113,11 @@
             </el-submenu>
           </el-menu>
         </el-aside>
-        <el-main>
-          <router-view></router-view>
-        </el-main>
+        <div class="main_box">
+          <el-main>
+            <router-view></router-view>
+          </el-main>
+        </div>
       </el-container>
     </el-container>
     <!-- <button >退出</button> -->
@@ -125,9 +133,13 @@ export default {
         this.$store.state.userData.power == "customermy"
           ? false
           : true,
-      isAdmin:this.$store.state.userData.power=='systemall' ? true:false,
-      isService:this.$store.state.userData.power=='userall'||this.$store.state.userData.power=='usermy'?false:true
-    }
+      isAdmin: this.$store.state.userData.power == "systemall" ? true : false,
+      isService:
+        this.$store.state.userData.power == "userall" ||
+        this.$store.state.userData.power == "usermy"
+          ? false
+          : true,
+    };
   },
 
   components: {},
@@ -178,5 +190,10 @@ export default {
 }
 .el-main {
   background: rgb(234, 237, 241);
+  height: 100%;
+}
+.main_box {
+  height: 100%;
+  width: 100%;
 }
 </style>

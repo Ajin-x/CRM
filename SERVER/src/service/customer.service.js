@@ -135,9 +135,9 @@ class customerService {
             `
         const result = await connection.execute(statement, [username, username]);
         return result[0];
-    }
+    } 
 
-    //分页获得某经理及其下属的客户
+    //分页获得某经理及其下属的客户 
     async getMangerCustomerList(username, offset, size) {
         console.log(username)
         const statement = `

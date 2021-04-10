@@ -15,10 +15,9 @@ class delCustomer{
     async getDelCustomer(ctx,next){
         const status = 200;
         const message = '获得全部数据成功~'
-
+        console.log('????????')
         let result = await delCustomerService.getDelCustomer()
 
-        
         ctx.body = {
             result,
             status,
@@ -37,7 +36,7 @@ class delCustomer{
         let result =await delCustomerService.delCustomerList(offset,size)
         console.log(result.length)
         ctx.body = {
-            result,
+            result, 
             status,
             message
         }
@@ -45,7 +44,12 @@ class delCustomer{
     async removeDelCustomer(ctx,next){
         // todo 拿到恢复ID
         let {delCustomerId} = ctx.params;
-        // todo 进行数据库操作
+        // todo 根据ID查找到该条客户信息 返回
+        let delCustomerData = await delCustomerService.getDelCustomerById(delCustomerId)
+
+        const insertResult = await delCustomerService.insertCustomer(delCustomerData) 
+
+        // todo 进行数据库操作（删除）
         let result = await delCustomerService.removeDelCustomer(delCustomerId)
         ctx.body = result;
 

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="echart_box">
       欢迎访问~
   </div>
 </template>
@@ -10,13 +10,19 @@ export default {
     return {};
   },
 
-  components: {},
+  components: {
+  },
 
   computed: {},
 
   methods: {}
 }
 </script>
-<style lang='css' scoped>
+<style lang='less' scoped>
+
+.echart_box{
+  width: 100%;
+  height: 100%;
+}
 
 </style>

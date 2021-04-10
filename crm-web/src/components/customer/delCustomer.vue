@@ -18,7 +18,7 @@
             v-model="name.name"
             class="input-with-select"
             clearable
-            @clear="getLossCustomerList"
+            @clear="getDelCustomerList"
           >
             <el-button
               slot="append"
@@ -31,7 +31,7 @@
 
       <!-- 渲染数据表格 -->
       <el-table
-        :data="lossCustomerList"
+        :data="delCustomerList"
         border
         style="width: 100%"
         align="center"
@@ -125,7 +125,7 @@ export default {
         name: "",
       },
       //用户列表数据
-      lossCustomerList: [],
+      delCustomerList: [],
       //当前数据总数
       total: 0,
     };
@@ -147,10 +147,10 @@ export default {
           this.total == 0 ? (this.total = res.data.result.length) : this.total;
         });
     },
-    //请求用户列表数据
-    getLossCustomerList() {
+    //请求被删客户列表数据
+    getDelCustomerList() {
       this.$axios
-        .get("/customer/getLossCustomerList", { params: this.queryInfo })
+        .get("/delCustomer", { params: this.queryInfo })
         .then((res) => {
           // console.log(res);
 
@@ -158,58 +158,58 @@ export default {
           // this.total == 0 ? (this.total = res.data.result.length) : this.total;
         });
     },
-    //获得所有用户数据
-    getLossCustomers() {
-      this.$axios.get("/customer/getLossCustomers").then((res) => {
-        if (res.data.status === 200) this.lossCustomerList = res.data.result;
+    //获得所有被删客户数据
+    getDelCustomers() {
+      this.$axios.get("/delCustomer/delCustomers").then((res) => {
+        if (res.data.status === 200) this.delCustomerList = res.data.result;
         this.total == 0 ? (this.total = res.data.result.length) : this.total;
       });
     },
     //当每页数据发生改变时触发
     SizeChange(newValue) {
       this.queryInfo.size = newValue;
-      this.getLossCustomerList();
+      this.getDelCustomerList();
     },
     //当前页码发生改变时触发
     CurrentChange(newValue) {
       //偏移量
       this.queryInfo.offset =
         newValue == 1 ? 0 : this.queryInfo.size * (newValue - 1);
-      this.getLossCustomerList();
+      this.getDelCustomerList();
     },
 
     //删除客户
     removeUserItem(row) {
-      this.$confirm("此操作将永久删除该客户, 是否继续?", "删除用户", {
+      this.$confirm("此操作将会把该客户恢复到客户列表中, 是否继续?", "恢复客户信息", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
       })
         .then(() => {
-          //点击确定发送后台请求，删除该用户
+          //点击确定发送后台请求，删除该用户 
           // console.log(row.id);
-          this.$axios.delete(`/customer/${row.id}`).then((res) => {
+          this.$axios.delete(`/delCustomer/${row.id}`).then((res) => {
             this.$message({
               type: "success",
-              message: "删除成功!",
+              message: "恢复成功!~", 
             });
             this.total = 0;
-            this.getLossCustomers();
-            this.getLossCustomerList();
+            this.getDelCustomers();
+            this.getDelCustomerList();
           });
         })
         .catch(() => {
           //点击取消，取消该操作
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消恢复",
           });
         });
     },
   },
   created() {
-    this.getLossCustomers();
-    this.getLossCustomerList();
+    this.getDelCustomers();
+    this.getDelCustomerList();
   },
 };
 </script>

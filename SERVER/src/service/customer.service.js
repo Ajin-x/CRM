@@ -100,12 +100,12 @@ class customerService {
 
     }
     //更新客户信息（将其流失）  
-    async updateCustomer(giveUpRea, id) {
-        console.log(giveUpRea, id)
+    async updateCustomer(giveUpRea, name) {
+        console.log(giveUpRea, name)
         const statement = `
-        UPDATE client SET giveUpRea = ? , state = 1 WHERE id = ?
+        UPDATE client SET giveUpRea = ? , state = 1 WHERE name = ?
         `
-        const [result] = await connection.execute(statement, [giveUpRea, id])
+        const [result] = await connection.execute(statement, [giveUpRea, name])
         return result;
     }
     //更新指派的员工
@@ -128,10 +128,10 @@ class customerService {
     async getMangerCustomer(username) {
         console.log(username)
         const statement = `
-            select name,c.phone,email,type,clientDesc,state,c.username,giveUpRea,c.createAT from user as A
-            RIGHT join user as B on B.superior_name=A.username
-            RIGHT join client as C on C.username=B.username or C.username=?
-            where A.username=?
+        select DISTINCT name,c.phone,email,type,clientDesc,state,c.username,giveUpRea,c.createAT from user as A
+        RIGHT join user as B on B.superior_name=A.username
+        RIGHT join client as C on C.username=B.username or C.username=?
+        where A.username=? AND state=0
             `
         const result = await connection.execute(statement, [username, username]);
         return result[0];
@@ -141,10 +141,10 @@ class customerService {
     async getMangerCustomerList(username, offset, size) {
         console.log(username)
         const statement = `
-            select name,c.phone,email,type,clientDesc,state,c.username,giveUpRea,c.createAT from user as A
-            RIGHT join user as B on B.superior_name=A.username
-            RIGHT join client as C on C.username=B.username or C.username=?
-            where A.username=?
+        select DISTINCT name,c.phone,email,type,clientDesc,state,c.username,giveUpRea,c.createAT from user as A
+        RIGHT join user as B on B.superior_name=A.username
+        RIGHT join client as C on C.username=B.username or C.username=?
+        where A.username=? AND state=0
             LIMIT ?,?
             `
         const result = await connection.execute(statement, [username, username, offset, size]);

@@ -414,7 +414,7 @@ export default {
       lossCustomerVisible: false,
       //存储当前要流失的客户信息
       lossCustomerParams: {
-        id: 0,
+        name: '',
         giveUpRea: "",
       },
       //要流失客户的表单信息验证
@@ -533,8 +533,9 @@ export default {
 
     //点击BUTTON打开流失用户表单
     lossCustomer(row) {
+      console.log(row.name)
       this.lossCustomerVisible = !this.lossCustomerVisible;
-      this.lossCustomerParams.id = row.id;
+      this.lossCustomerParams.name = row.name;
     },
     //点击确定流失客户
     lossCustomerList() {
@@ -620,6 +621,7 @@ export default {
         this.$axios
           .get(`/customer/getMangerCustomer`, { params: this.queryInfo })
           .then((res) => {
+            console.log(res.data)
             if (res.data.status === 200) this.customerList = res.data.result;
             this.total == 0
               ? (this.total = res.data.result.length)

@@ -78,6 +78,7 @@ router.beforeEach((to,from,next)=>{
     const token = window.localStorage.getItem('token');
     if(!token){
       //这儿还拿不到$router
+      window.alert('请先登录！')
       next('/login')
     }else{
       next()

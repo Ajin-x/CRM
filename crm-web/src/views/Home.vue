@@ -4,8 +4,8 @@
       <!-- 头部 -->
       <el-header>
         <div>
-          <img src="../assets/logo.png" alt="" />
-          <span>CRM客户管理系统</span>
+          <!-- <img src="../assets/logo.png" alt="" /> -->
+          <span class="crm">客户管理系统</span>
         </div>
 
         <div>
@@ -184,6 +184,9 @@ export default {
 }
 .el-header {
   background: rgb(51, 55, 68);
+  .crm{
+    margin-left: 15px;
+  }
 }
 .el-aside {
   background: rgb(51, 55, 68);

@@ -3,7 +3,7 @@
     <div class="login_context">
       <!-- 头部图片 -->
       <div class="logo">
-        <img src="../assets/logo.png" alt="" />
+        <img src="../assets/logo2.jpg" alt="" />
       </div>
       <!-- from表单 -->
       <el-form

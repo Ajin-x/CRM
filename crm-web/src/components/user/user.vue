@@ -422,6 +422,7 @@ export default {
         this.addUserVisible = !this.addUserVisible;
         //刷新列表
         this.getAllUser();
+        this.getUserList()
       });
     },
     //关闭对话框时清空数据

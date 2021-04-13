@@ -54,6 +54,6 @@ class delCustomer{
         ctx.body = result;
 
     }
-}
+} 
 
 module.exports = new delCustomer()

@@ -107,10 +107,9 @@ class customerController {
         const message = '流失客户成功~'
         const status = 200
         //获取数据
-        const { customerId } = ctx.params;
-        const { giveUpRea } = ctx.request.body
+        const { giveUpRea ,name} = ctx.request.body
         //更新内容
-        const result = await customerService.updateCustomer(giveUpRea, customerId)
+        const result = await customerService.updateCustomer(giveUpRea, name)
         ctx.body = {
             result,
             message,

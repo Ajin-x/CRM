@@ -7,21 +7,18 @@ class UserController {
         console.log('注册middleware~')
         //获取用户请求的参数
         const user = ctx.request.body;
-        console.log(user)
 
-        //通过传过来的jobName寻找到job_id
+        const { username } = ctx.request.body;
 
-        const id = await service.getJobId(user)
-
-        user.job_id = id[0].id;
         //操作数据库
         const result = await service.create(user)
 
         //返回数据
         ctx.body = {
+            username,
             result,
             status,
-            message
+            message,
         };
     }
 
@@ -55,7 +52,7 @@ class UserController {
         console.log(username)
         //拿到 offset size  
         // 数据库查询
-        let result = await service.getUserList(username,offset, size)
+        let result = await service.getUserList(username, offset, size)
 
         ctx.body = {
             result,
@@ -128,6 +125,64 @@ class UserController {
             result
         }
     }
+
+    async updatePassword(ctx, next) {
+        const message = '修改密码成功~请重新登录'
+        const status = 200
+        const { username, password } = ctx.request.body
+        // todo 根据username更改用户密码
+        const result = await service.updatePassword(username, password)
+        console.log(result)
+
+        // todo 返回
+
+        return ctx.body = {
+            message,
+            status,
+            result
+        };
+    }
+
+    // 查询经理
+    async getManager(ctx,next) {
+        const message = '查询经理信息成功~'
+        const status = 200
+        // todo 
+        const result = await service.getManager();
+
+        return ctx.body = {
+            result,
+            message,
+            status
+        }
+    }
+    // 删除时转移员工
+    async changeClientSuperiorForSure(ctx,next){
+        const message = '转移下属员工成功~'
+        const status = 200
+        const {username,superior_name} = ctx.request.body;
+        const result = await service.changeClientSuperiorForSure(username,superior_name)
+
+        return ctx.body = {
+            message,
+            status,
+            result
+        }
+    }
+
+    //查询销售部员工
+    async getClientStaff(ctx,next){
+        const message = '查询成功~'
+        const status = 200
+
+        const result  = await service.getClientStaff()
+        return ctx.body = {
+            message,
+            status,
+            result
+        }  
+    }
+
 }
 
 module.exports = new UserController(); 

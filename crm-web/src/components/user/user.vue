@@ -23,7 +23,7 @@
             <el-button
               slot="append"
               icon="el-icon-search"
-              @click="getUser"
+              @click="getUser(username)"
             ></el-button>
           </el-input>
         </el-col>
@@ -32,10 +32,32 @@
             添加用户</el-button
           >
         </el-col>
+        <el-select
+          v-model="changeClientForm.username"
+          placeholder="员工职务"
+          @change="fliterUser"
+        >
+          <el-option
+            v-for="item in jobs"
+            :key="item.value"
+            :label="item.label"
+            :value="item.label"
+          >
+            <span style="float: left">{{ item.value }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{
+              item.label
+            }}</span>
+          </el-option>
+        </el-select>
       </el-row>
 
       <!-- 渲染数据表格 -->
-      <el-table :data="userList" border style="width: 100%">
+      <el-table
+        :data="userList"
+        border
+        style="width: 100%"
+        :key="userList.index"
+      >
         <el-table-column type="index" width="180" prop="id"> </el-table-column>
         <el-table-column prop="username" label="用户名" width="180">
         </el-table-column>
@@ -144,16 +166,54 @@
           <el-input v-model="addUserFrom.phone"></el-input>
         </el-form-item>
 
-        <el-form-item label="角色" prop="jobName">
-          <el-input v-model="addUserFrom.jobName"></el-input>
+        <el-form-item label="角色">
+          <el-select v-model="addUserFrom.job_id" placeholder="请选择">
+            <el-option
+              v-for="item in jobs"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              :disabled="item.value == 1"
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.value
+              }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
 
-        <el-form-item label="部门号" prop="department_id">
-          <el-input v-model="addUserFrom.department_id"></el-input>
+        <el-form-item label="部门号">
+          <el-select v-model="addUserFrom.department_id" placeholder="请选择">
+            <el-option
+              v-for="item in departments"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+              :disabled="item.value == 1"
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.value
+              }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="上级名" prop="superior_name">
-          <el-input v-model="addUserFrom.superior_name"></el-input>
+          <el-select v-model="addUserFrom.superior_name" placeholder="请选择">
+            <el-option
+              v-for="item in managerInfo"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
+              <span style="float: left">{{ item.label }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.value
+              }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -215,7 +275,22 @@
       >
         <!-- prop是验证规则 -->
         <el-form-item label="上级名" prop="superior_name">
-          <el-input v-model="changeSuperiorParams.superior_name"></el-input>
+          <el-select
+            v-model="changeSuperiorParams.superior_name"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in managerInfo"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"
+            >
+              <span style="float: left">{{ item.value }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.label
+              }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -223,6 +298,139 @@
       <span slot="footer" class="dialog-footer">
         <el-button @click="changeSuperiorVisible = false">取 消</el-button>
         <el-button type="primary" @click="changeSuperiorForSure"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <!-- 如果是销售经理弹出会话框 -->
+    <el-dialog
+      title="请先将其员工转移"
+      :visible.sync="changeClientSuperiorVisible"
+      width="50%"
+      align="left"
+      top="200px"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="changeClientSuperiorForm"
+        :rules="changeClientSuperiorRul"
+        label-width="150px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="将其员工转移至" prop="superior_name">
+          <el-select
+            v-model="changeClientSuperiorForm.superior_name"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in clientMangerInfo"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"
+            >
+              <span style="float: left">{{ item.value }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.label
+              }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeClientSuperiorVisible = false"
+          >取 消</el-button
+        >
+        <el-button type="primary" @click="changeClientSuperiorForSure"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <!-- 如果是后勤经理弹出对话框 -->
+    <el-dialog
+      title="请先将其员工转移"
+      :visible.sync="changeStaffSuperiorVisible"
+      width="50%"
+      align="left"
+      top="200px"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="changeClientSuperiorForm"
+        :rules="changeClientSuperiorRul"
+        label-width="150px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="将其员工转移至" prop="superior_name">
+          <el-select
+            v-model="changeClientSuperiorForm.superior_name"
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in staffMangerInfo"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"
+            >
+              <span style="float: left">{{ item.value }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.label
+              }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeStaffSuperiorVisible = false">取 消</el-button>
+        <el-button type="primary" @click="changeClientSuperiorForSure"
+          >确 定</el-button
+        >
+      </span>
+    </el-dialog>
+
+    <!-- 删除员工-销售部员工 -->
+    <el-dialog
+      title="请先将其员工转移"
+      :visible.sync="changeClientVisible"
+      width="50%"
+      align="left"
+      top="200px"
+    >
+      <!-- 主题内容区 -->
+      <el-form
+        :model="changeClientForm"
+        label-width="150px"
+        class="demo-ruleForm"
+      >
+        <!-- prop是验证规则 -->
+        <el-form-item label="将其客户转移至" prop="superior_name">
+          <el-select v-model="changeClientForm.username" placeholder="请选择">
+            <el-option
+              v-for="item in clientStaffInfo"
+              :key="item.value"
+              :label="item.label"
+              :value="item.label"
+            >
+              <span style="float: left">{{ item.value }}</span>
+              <span style="float: right; color: #8492a6; font-size: 13px">{{
+                item.label
+              }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <!-- 底部 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="changeStaffSuperiorVisible = false">取 消</el-button>
+        <el-button type="primary" @click="changeClientFormForSure"
           >确 定</el-button
         >
       </span>
@@ -243,6 +451,9 @@ export default {
       cb(new Error("请输入合法的手机号码"));
     };
     return {
+      //判断是否是admin
+      isAdmin: this.$store.state.power === "systemall" ? true : false,
+
       input3: "",
       //请求用户列表的参数
       queryInfo: {
@@ -250,6 +461,16 @@ export default {
         offset: 0,
         size: 5,
       },
+      //删除客户的信息
+      delUserInfo: {},
+      // 经理信息
+      managerInfo: {},
+      // 客户经理信息
+      clientMangerInfo: [],
+      // 员工经理信息,
+      staffMangerInfo: [],
+      //销售部员工信息
+      clientStaffInfo: [],
       //传递给后台的userName
       userName: {
         userName: "",
@@ -268,7 +489,7 @@ export default {
         username: "",
         password: "",
         phone: "",
-        jobName: "",
+        job_id: "",
         department_id: "",
         superior_name: "",
       },
@@ -297,12 +518,6 @@ export default {
           },
           ,
           { validator: checkMobile, trigger: "blur" },
-        ],
-        jobName: [
-          { required: true, message: "请输入该用户角色", trigger: "blur" },
-        ],
-        department_id: [
-          { required: true, message: "请输入该用户所属部门", trigger: "blur" },
         ],
         superior_name: [
           { required: false, message: "请输入该用户上级", trigger: "blur" },
@@ -343,6 +558,71 @@ export default {
           },
         ],
       },
+      //角色列表的下拉框
+      jobs: [
+        {
+          value: 1,
+          label: "总管理员",
+        },
+        {
+          value: 2,
+          label: "销售部经理",
+        },
+        {
+          value: 3,
+          label: "销售部员工",
+        },
+        {
+          value: 4,
+          label: "后勤部经理",
+        },
+        {
+          value: 5,
+          label: "后勤部员工",
+        },
+      ],
+      //添加员工在中部门的下拉框
+      departments: [
+        {
+          value: 1,
+          label: "总管理部",
+        },
+        {
+          value: 2,
+          label: "销售部",
+        },
+        {
+          value: 3,
+          label: "后勤部",
+        },
+      ],
+      //添加一个allUser作为筛选
+      alluser: [],
+      // 如果删除的是销售经理 弹出的对话框
+      changeClientSuperiorVisible: false,
+      // 如果删除的是后勤经理 弹出对话框
+      changeStaffSuperiorVisible: false,
+      // 删除的是销售部员工 弹出对话框
+      changeClientVisible: false,
+      // 删除经理弹框表单
+      changeClientSuperiorForm: {
+        username: "",
+        superior_name: "",
+      },
+      //删除销售员工时表单
+      changeClientForm: {
+        username: "",
+        changeUsername: "",
+      },
+      changeClientSuperiorRul: {
+        superior_name: [
+          {
+            required: true,
+            message: "请输入上级名称",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
 
@@ -355,10 +635,21 @@ export default {
     searchVal() {},
     //根据用户名获取单个用户
     getUser(username) {
-      this.$axios.get("/users/user", { params: this.username }).then((res) => {
+      username == "" ? this.username : username;
+      console.log(username, this.$store.state.userData.power);
+      if (
+        username.username === "admin" &&
+        this.$store.state.userData.power !== "systemall"
+      ) {
+        this.$message.error("无权查询该用户信息！");
+        username = "";
+        return;
+      }
+      this.$axios.get("/users/user", { params: username }).then((res) => {
         if (res.data.status === 200) this.userList = res.data.result;
         this.total == 0 ? (this.total = res.data.result.length) : this.total;
       });
+      username = "";
     },
     //请求用户列表数据
     getUserList() {
@@ -391,7 +682,8 @@ export default {
               );
             });
             this.userList = result;
-            // console.log(this.userList);
+            this.alluser = result;
+            console.log(this.userList);
             this.total == 0
               ? (this.total = res.data.result.length)
               : this.total;
@@ -412,17 +704,21 @@ export default {
     },
     //添加用户
     addUser() {
+      // 疑问 为什么拿到的adduserFrom 只有departmentid跟jobId 不是空？ 那我传的adduserFrom为什么不是空？
       //校验规则
       this.$refs.addUserFromRef.validate((valid) => {
         if (!valid) return alert("请输入正确信息");
         this.$axios.post("/users", this.addUserFrom).then((res) => {
-          // console.log(res);
+          //刷新列表
+          let username = {
+            username: res.data.username,
+          };
+          console.log(username);
+          this.getUser(username);
+          this.$message.success(res.data.message);
         });
         //关闭对话框
         this.addUserVisible = !this.addUserVisible;
-        //刷新列表
-        this.getAllUser();
-        this.getUserList()
       });
     },
     //关闭对话框时清空数据
@@ -432,6 +728,11 @@ export default {
     },
     //点击编辑按钮 编辑用户信息
     editUser(row) {
+      const { power } = this.$store.state.userData;
+      if (row.username == "admin" && power !== "systemall") {
+        this.$message.error("您没有相关权限！");
+        return;
+      }
       const username = { username: row.username };
       // console.log(username);
       this.$axios.get("/users/user", { params: username }).then((res) => {
@@ -449,11 +750,87 @@ export default {
         this.getUserList();
       });
     },
-    //删除用户
+    // todo 删除前先check信息
+    checkRemoveItem(row) {
+      console.log(row);
+      // todo 如果是经理，弹出将其下属转移的弹框
+      const jobName = row.jobName;
+      // 这里报错了 不管先实现 不行再用username查一遍再做判断
+      if (jobName == "销售部经理") {
+        this.changeClientSuperiorVisible = !this.changeClientSuperiorVisible;
+        this.changeClientSuperiorForm.username = row.username;
+        return;
+      } else if (jobName == "后勤部经理") {
+        this.changeStaffSuperiorVisible = !this.changeStaffSuperiorVisible;
+        this.changeClientSuperiorForm.username = row.username;
+        return;
+      } else if (jobName == "销售部员工") {
+        //todo 如果是销售员工，弹出将其客户转移的弹框
+        this.changeClientVisible = !this.changeClientVisible;
+        this.changeClientForm.changeUsername = row.username;
+      }
+    },
+    // 确认转移经理的员工
+    changeClientSuperiorForSure() {
+      console.log(this.changeClientSuperiorForm);
+      this.$axios
+        .patch(
+          "/users/changeClientSuperiorForSure",
+          this.changeClientSuperiorForm
+        )
+        .then((res) => {
+          console.log(res);
+          console.log(this.changeClientSuperiorForm);
+          if (res.data.status === 200) {
+            console.log(
+              this.changeClientSuperiorVisible,
+              this.changeStaffSuperiorVisible
+            );
+            if (this.changeClientSuperiorVisible) {
+              this.changeClientSuperiorVisible = !this
+                .changeClientSuperiorVisible;
+            }
+            if (this.changeStaffSuperiorVisible) {
+              this.changeClientSuperiorVisible = !this
+                .changeClientSuperiorVisible;
+            }
+            console.log(
+              this.changeClientSuperiorVisible,
+              this.changeStaffSuperiorVisible
+            );
+            this.$message.success(res.data.message);
+            this.getAllUser();
+            this.getUserList();
+          }
+        });
+    },
+    //确认转移员工的客户
+    changeClientFormForSure() {
+      console.log(this.changeClientForm);
+      this.$axios
+        .patch("/customer/changeClientUser", this.changeClientForm)
+        .then((res) => {
+          if (res.data.status == 200) {
+            this.$message.success(res.data.message);
+            this.changeClientVisible = !this.changeClientVisible;
+            this.getAllUser();
+            this.getUserList();
+          }
+        });
+    },
+    //确认删除用户
     removeUserItem(row) {
+      // 如果是普通员工 没有删除权限
       const { power } = this.$store.state.userData;
-      console.log(power);
-      if (power == "usermy") {
+      const name = {
+        name: row.username,
+      };
+      console.log(power)
+      if (power === "usermy" || power === "customerall"||power=='customermy') {
+        this.$message.error("您没有相关权限！?");
+        return;
+      }
+      if (row.username == "admin") {
         this.$message.error("您没有相关权限！");
         return;
       }
@@ -463,13 +840,14 @@ export default {
         type: "warning",
       })
         .then(() => {
-          //点击确定发送后台请求，删除该用户
-          // console.log(row.id);
+          // 点击确定发送后台请求，删除该用户
           this.$axios.delete(`/users/${row.id}`).then((res) => {
             this.$message({
               type: "success",
-              message: "删除成功!",
+              message: "删除成功，请转移其管理的员工/客户",
             });
+            this.checkRemoveItem(row);
+            this.getAllUser();
             this.getUserList();
           });
         })
@@ -481,15 +859,29 @@ export default {
           });
         });
     },
-    //点击弹出修改上级的对哈框
+    //点击弹出修改上级的对话框
     changeSuperior(row) {
       const { power } = this.$store.state.userData;
+      const jobName = row.jobName;
       console.log(power);
       if (power !== "systemall") {
         this.$message.error("您没有相关权限！");
         return;
       }
+      if (
+        row.jobName == "销售部经理" ||
+        row.jobName == "后勤部经理" ||
+        row.jobName == "总管理员"
+      ) {
+        this.$message.warning("多余的操作，其上级无需修改！");
+        return;
+      }
       this.changeSuperiorParams.id = row.id;
+      if (jobName == "销售部员工") {
+        this.managerInfo = this.clientMangerInfo;
+      } else if (jobName == "后勤部员工") {
+        this.managerInfo = this.staffMangerInfo;
+      }
       this.changeSuperiorVisible = !this.changeSuperiorVisible;
     },
     changeSuperiorForSure() {
@@ -504,10 +896,61 @@ export default {
           this.changeSuperiorVisible = !this.changeSuperiorVisible;
         });
     },
+    getManager() {
+      this.$axios.get("/users/manager").then((res) => {
+        this.managerInfo = res.data.result;
+        this.managerInfo.forEach((item, index) => {
+          if (item.value == "后勤部经理") {
+            this.staffMangerInfo.push(item);
+          } else if (item.value == "销售部经理") {
+            this.clientMangerInfo.push(item);
+          }
+        });
+        console.log(this.clientMangerInfo, this.staffMangerInfo);
+      });
+    },
+    getClientStaff() {
+      this.$axios.get("/users/getClientStaff").then((res) => {
+        this.clientStaffInfo = res.data.result;
+        console.log(this.clientStaffInfo);
+      });
+    },
+    // 点击单选框选出对应的角色
+    fliterUser(value) {
+      console.log(value);
+      console.log(this.alluser);
+      this.userList = this.alluser.filter((item, index) => {
+        console.log(item);
+        return item.jobName === value;
+      });
+    },
   },
   created() {
-    this.getAllUser();
-    this.getUserList();
+    if (this.$store.state.userData.power === "customerall") {
+      this.userName.userName = this.$store.state.userData.username;
+      // console.log(this.userName)
+      this.$axios
+        .get(`/users/users/${this.$store.state.userData.id}`)
+        .then((res) => {
+          if (res.data.status === 200) {
+            const result = res.data.result.map((item, index) => {
+              return Object.assign(
+                res.data.result[index].user,
+                res.data.result[index].job
+              );
+            });
+            this.userList = result.filter((item, index) => {
+              return item.superior_name === this.$store.state.userData.username;
+            });
+            this.total  = this.userList.length
+          }
+        });
+    } else {
+      this.getClientStaff();
+      this.getManager();
+      this.getAllUser();
+      this.getUserList();
+    }
   },
 };
 </script>

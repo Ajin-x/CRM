@@ -101,6 +101,7 @@ class customerService {
     }
     //更新客户信息（将其流失）  
     async updateCustomer(giveUpRea, name) {
+        console.log('aaaa')
         console.log(giveUpRea, name)
         const statement = `
         UPDATE client SET giveUpRea = ? , state = 1 WHERE name = ?
@@ -169,6 +170,14 @@ class customerService {
         const result = await connection.execute(statement, [username, offset, size]);
         console.log(result[0])
         return result[0];
+    }
+
+    async changeClientUser(changeUsername,username){
+        const statement = `
+        UPDATE client SET username = ? WHERE username= ? 
+        `
+        const result = await connection.execute(statement,[username,changeUsername])
+        return result;
     }
 }
 

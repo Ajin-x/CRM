@@ -6,7 +6,11 @@ const {
     getAllUser,
     update,
     changeSuperior,
-    remove
+    remove,
+    updatePassword,
+    getManager,
+    changeClientSuperiorForSure,
+    getClientStaff
  } = require('../controller/user.controller')
 
 const {
@@ -26,7 +30,7 @@ userRouter.get('/user',getUserDetail)
 userRouter.get('/',getUserList)
 
 // 获取所有用户
-userRouter.get('/users/:id',getAllUser) 
+userRouter.get('/users/:id',getAllUser)  
 
 //更新用户上级
 userRouter.patch('/changeSuperior/:id',changeSuperior)
@@ -37,4 +41,18 @@ userRouter.patch('/',update)
 //删除用户信息
 userRouter.delete('/:id',remove)
 
-module.exports = userRouter;
+// todo 二稿修改：更改用户密码
+userRouter.patch('/updatePassword',handlePassword,updatePassword)
+
+// todo 二稿改修： 查询经理
+userRouter.get('/manager',getManager)
+
+// todo 二稿修改：转移下属员工
+userRouter.patch('/changeClientSuperiorForSure',changeClientSuperiorForSure)
+
+// todo 二稿修改：查询销售员工
+userRouter.get('/getClientStaff',getClientStaff)
+
+
+
+module.exports = userRouter; 

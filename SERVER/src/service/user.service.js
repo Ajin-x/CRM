@@ -13,15 +13,17 @@ class UserService {
     }
 
     async getUserByName(username) {
-        const statement = `SELECT * FROM user where username = ?;`;
+        const statement = `
+        SELECT * FROM user where username = ?;
+        `;
         const result = await connection.execute(statement, [username]);
         //result是一个数组 第一项是用户名 第二项是一堆其他的信息
         //result[0]拿到的也是一个数组
-        return result[0];
-    }
-
-    async getJobId(user){
-        const {jobName} = user;
+        return result[0]; 
+    } 
+ 
+    async getJobId(user){  
+        const {jobName} = user; 
         const statement = `
         SELECT id FROM job WHERE name = ? 
         `
@@ -96,7 +98,6 @@ class UserService {
         const statement = `
         UPDATE user SET superior_name = ? WHERE id = ?
         `
-
         const result = await connection.execute(statement,[ctx.request.body.superior_name,id])
 
         return result;
@@ -115,6 +116,56 @@ class UserService {
         `
         const [result] = await connection.execute(statement,[id]);
         return result;
+    }
+
+    // todo 二稿修改 更改用户密码
+    async updatePassword(username,password){
+        const statement=`
+        UPDATE user SET password = ? WHERE username = ?
+        `
+
+        const result = await connection.execute(statement, [password,username])
+
+        return result;
+    }
+
+    // 查询经理
+    async getManager(){
+        const statement = `
+        SELECT j.name value , 
+        u.username label
+        FROM job j
+        LEFT JOIN user u ON j.id = u.job_id
+        WHERE j.id in (1,2,4)
+        `
+
+        const result = await  connection.execute(statement)
+
+        return result[0]
+    }
+
+    //删除时转移员工
+    async changeClientSuperiorForSure(username,superior_name){
+        const statement = `
+        UPDATE user SET superior_name = ? WHERE superior_name= ? 
+        `
+        console.log(username,superior_name)
+        const result = await  connection.execute(statement,[superior_name,username])
+
+        return result
+    }
+
+    async getClientStaff(){
+        const statement =`
+        SELECT j.name value , 
+        u.username label 
+        FROM job j
+        LEFT JOIN user u ON j.id = u.job_id
+        WHERE j.id =3
+        `
+        const result  = await connection.execute(statement)
+
+        return result[0]
     }
 }
 

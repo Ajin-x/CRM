@@ -107,7 +107,7 @@ class customerController {
         const message = '流失客户成功~'
         const status = 200
         //获取数据
-        const { giveUpRea ,name} = ctx.request.body
+        const { giveUpRea, name } = ctx.request.body
         //更新内容
         const result = await customerService.updateCustomer(giveUpRea, name)
         ctx.body = {
@@ -115,15 +115,14 @@ class customerController {
             message,
             status
         };
-    }
-    //更新客户负责人
+    } 
+    //更新客户负责人 
     async changeUserName(ctx, next) {
         const message = '更改负责人成功~'
         const status = 200
         const { customerId } = ctx.params;
         const { username } = ctx.request.body;
         console.log(customerId, username)
-
         const result = await customerService.changeUserName(customerId, username)
         ctx.body = {
             result,
@@ -141,7 +140,7 @@ class customerController {
         const customerData = await customerService.getCustomerById(customerId)
 
         //将客户信息添加到delClient中
-        const insertResult = await customerService.insertDelCustomer(customerData) 
+        const insertResult = await customerService.insertDelCustomer(customerData)
         console.log(insertResult[0])
         //删除内容
         const result = await customerService.remove(customerId);
@@ -153,11 +152,11 @@ class customerController {
     }
 
     //获得某经理及其下属的客户信息
-    async getMangerCustomer(ctx,next){
+    async getMangerCustomer(ctx, next) {
         const message = '获取客户成功~'
         const status = 200
-        const {username} = ctx.query;
-        
+        const { username } = ctx.query;
+
         const result = await customerService.getMangerCustomer(username)
 
         ctx.body = {
@@ -165,17 +164,17 @@ class customerController {
             status,
             message
         }
-        
-    
-    }   
+
+
+    }
     //分页获得某经理及其下属的客户信息
-    async getMangerCustomerList(ctx,next){
+    async getMangerCustomerList(ctx, next) {
         const message = '分页获取客户成功~'
         const status = 200
 
-        const {username,offset,size} = ctx.query;
-        
-        const result = await customerService.getMangerCustomerList(username,offset,size)
+        const { username, offset, size } = ctx.query;
+
+        const result = await customerService.getMangerCustomerList(username, offset, size)
 
         ctx.body = {
             result,
@@ -185,10 +184,10 @@ class customerController {
     }
 
     //获得某员工负责的客户信息
-    async getStaffCustomer(ctx,next){
+    async getStaffCustomer(ctx, next) {
         const message = '获取客户成功~'
         const status = 200
-        const {username} = ctx.query;
+        const { username } = ctx.query;
 
         const result = await customerService.getStaffCustomer(username)
 
@@ -197,21 +196,36 @@ class customerController {
             status,
             message
         }
-        
+
     }
 
-    async getStaffCustomerList(ctx,next){
+    async getStaffCustomerList(ctx, next) {
         const message = '获取客户成功~'
         const status = 200
-        const {username,offset,size} = ctx.query;
+        const { username, offset, size } = ctx.query;
 
-        const result = await customerService.getStaffCustomerList(username,offset,size)
+        const result = await customerService.getStaffCustomerList(username, offset, size)
 
         ctx.body = {
             result,
             status,
             message
         }
+    }
+    // 删除时转移客户
+    async changeClientUser(ctx, next) {
+        const message = '转移客户成功~'
+        const status = 200
+        console.log('aaaa')
+        const { changeUsername, username } = ctx.request.body;
+        console.log(changeUsername, username)
+        const result = await customerService.changeClientUser(changeUsername,username)
+
+        return ctx.body= {
+            message,
+            status,
+            result
+        } 
     }
 
 }

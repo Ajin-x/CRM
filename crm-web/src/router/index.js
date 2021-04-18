@@ -53,7 +53,12 @@ const routes = [
       {
         path:'/customerData',
         name:'customerData',
-        component: () => import(/* webpackChunkName: "customerData" */ '../components/customer/customerData.vue')
+        component: () => import(/* webpackChunkName: "customerData" */ '../components/chartData/customerData.vue')
+      },
+      {
+        path:'/customerData2',
+        name:'customerData2',
+        component: () => import(/* webpackChunkName: "customerData" */ '../components/chartData/customerData2.vue')
       },
     ]
   }

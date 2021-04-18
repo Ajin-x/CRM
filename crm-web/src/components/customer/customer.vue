@@ -545,7 +545,7 @@ export default {
       // );
       this.$axios
         .patch(
-          `/customer/${this.lossCustomerParams.id}`,
+          `/customer`,
           this.lossCustomerParams
         )
         .then((res) => {

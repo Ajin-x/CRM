@@ -40,15 +40,8 @@ export default {
     },
     //获取服务器数据
     async getData() {
-      let result;
-      if (this.queryInfo.username == "admin") {
-        result = await this.$axios.get("/customer/customers");
-      } else {
-        result = await this.$axios.get("/customer/getMangerCustomer", {
-          params: this.queryInfo,
-        });
-      }
-
+      let result = await this.$axios.get("/customer/getLossCustomers");
+      console.log(result);
       result.data.result.forEach((item, index) => {
         let date = this.rTime(result.data.result[index].createAT);
         let countIndex = new Date(date).getMonth();
@@ -57,6 +50,7 @@ export default {
       this.allData = result.data.result;
       this.updateChart();
     },
+
     //更新图表
     updateChart() {
       //调用图表更新

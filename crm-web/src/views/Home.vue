@@ -15,8 +15,27 @@
           <span class="headSpan"
             >您的职位是，{{ this.$store.state.userData.jobName }}</span
           >
+          <el-button type="text" @click="changePasswordVisible = true"
+            >点击此处修改密码</el-button
+          >
           <el-button type="primary" @click="loginOut">登出</el-button>
         </div>
+
+        <!-- header里面点击修改密码弹出对话框 -->
+        <el-dialog title="收货地址" :visible.sync="changePasswordVisible">
+          <el-form :model="userFrom">
+            <el-form-item label="活动名称">
+              <el-input v-model="userFrom.username"></el-input>
+            </el-form-item>
+            <el-form-item label="活动名称">
+              <el-input v-model="userFrom.password" type="password"></el-input>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="changePasswordVisible = false">取 消</el-button>
+            <el-button type="primary" @click="changePassword">确 定</el-button>
+          </div>
+        </el-dialog>
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -77,15 +96,41 @@
                 <i class="el-icon-menu"></i>
                 <span slot="title">流失客户管理</span>
               </el-menu-item>
+            </el-submenu>
+          </el-menu>
+          <!-- 数据分析 -->
+          <el-menu
+            default-active="1"
+            class="el-menu-vertical-demo"
+            background-color="rgb(51, 55, 68)"
+            text-color="#fff"
+            active-text-color="#409EFF"
+            :unique-opened="true"
+            :router="true"
+            v-if="isService"
+          >
+            <!-- 一级导航 -->
+            <el-submenu index="1">
+              <template slot="title">
+                <i class="el-icon-location"></i>
+                <span>数据分析</span>
+              </template>
 
-              <!-- 数据分析 -->
-              <el-menu-item index="/customerData" class="menuHover">
+              <!-- 二级导航 -->
+              <!-- 路由跳转是在Index中写 -->
+              <el-menu-item index="/customerData">
                 <i class="el-icon-menu"></i>
-                <span slot="title">数据分析</span>
+                <span slot="title">每月新增客户</span>
+              </el-menu-item>
+
+              <!-- 二级导航 -->
+              <!-- 路由跳转是在Index中写 -->
+              <el-menu-item index="/customerData2">
+                <i class="el-icon-menu"></i>
+                <span slot="title">每月流失客户</span>
               </el-menu-item>
             </el-submenu>
           </el-menu>
-
           <el-menu
             default-active="1"
             class="el-menu-vertical-demo"
@@ -129,16 +174,15 @@ export default {
   data() {
     return {
       isCustomer:
-        this.$store.state.userData.power == "customerall" ||
-        this.$store.state.userData.power == "customermy"
-          ? false
-          : true,
+        this.$store.state.userData.power == "customermy" ? false : true,
       isAdmin: this.$store.state.userData.power == "systemall" ? true : false,
       isService:
         this.$store.state.userData.power == "userall" ||
         this.$store.state.userData.power == "usermy"
           ? false
           : true,
+      changePasswordVisible: false,
+      userFrom: { ...this.$store.state.userData },
     };
   },
 
@@ -150,6 +194,16 @@ export default {
     loginOut() {
       window.localStorage.removeItem("token");
       this.$router.push("/login");
+    },
+    changePassword() {
+      this.$axios.patch("/users/updatePassword", this.userFrom).then((res) => {
+        if (res.data.status == 200) {
+          this.$router.push("/login");
+          this.$message.success(res.data.message);
+        }
+      });
+      console.log(this.userFrom);
+      this.changePasswordVisible = !this.changePasswordVisible;
     },
   },
   created() {
@@ -184,7 +238,7 @@ export default {
 }
 .el-header {
   background: rgb(51, 55, 68);
-  .crm{
+  .crm {
     margin-left: 15px;
   }
 }

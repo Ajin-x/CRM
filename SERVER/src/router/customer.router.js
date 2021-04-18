@@ -10,8 +10,13 @@ const { verifyAuth, verifyPermission } = require('../middleware/auth.middleware'
 const {
     create, customerData, update, remove, getAllCustomers,
     getCustomerByName, updateCustomer, changeUserName, getLossCustomers,
-    getLossCustomerList,getMangerCustomer,getMangerCustomerList,getStaffCustomer,getStaffCustomerList
+    getLossCustomerList,getMangerCustomer,getMangerCustomerList,getStaffCustomer,getStaffCustomerList,
+    changeClientUser,
 } = require('../controller/customer.controller')
+
+
+// todo 二稿修改：转移客户
+customerRouter.patch('/changeClientUser',changeClientUser)
 
 //增加客户
 customerRouter.post('/', create)
@@ -32,10 +37,10 @@ customerRouter.get('/customer', getCustomerByName)
 customerRouter.get('/', customerData)
 
 //更新客户信息
-customerRouter.patch('/customerData/:customerId', updateCustomer)
+customerRouter.patch('/customerData/:customerId', updateCustomer) 
 
 //更新客户信息(将其流失)
-customerRouter.patch('/:customerId', update)
+customerRouter.patch('/', update)
 
 //更新负责员工
 customerRouter.patch('/username/:customerId', changeUserName)
@@ -56,4 +61,4 @@ customerRouter.get('/getStaffCustomer',getStaffCustomer)
 //分页获得某员工负责的客户
 customerRouter.get('/getStaffCustomerList',getStaffCustomerList)
 
-module.exports = customerRouter;
+module.exports = customerRouter;  

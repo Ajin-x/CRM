@@ -22,12 +22,12 @@
         </div>
 
         <!-- header里面点击修改密码弹出对话框 -->
-        <el-dialog title="收货地址" :visible.sync="changePasswordVisible">
+        <el-dialog title="修改密码" :visible.sync="changePasswordVisible">
           <el-form :model="userFrom">
-            <el-form-item label="活动名称">
+            <el-form-item label="用户名">
               <el-input v-model="userFrom.username"></el-input>
             </el-form-item>
-            <el-form-item label="活动名称">
+            <el-form-item label="新密码">
               <el-input v-model="userFrom.password" type="password"></el-input>
             </el-form-item>
           </el-form>
@@ -107,7 +107,7 @@
             active-text-color="#409EFF"
             :unique-opened="true"
             :router="true"
-            v-if="isService"
+            v-if="isShow"
           >
             <!-- 一级导航 -->
             <el-submenu index="1">
@@ -173,6 +173,11 @@
 export default {
   data() {
     return {
+      isShow:
+        this.$store.state.userData.power == "customerall" ||
+        this.$store.state.userData.power == "systemall"
+          ? true
+          : false,
       isCustomer:
         this.$store.state.userData.power == "customermy" ? false : true,
       isAdmin: this.$store.state.userData.power == "systemall" ? true : false,

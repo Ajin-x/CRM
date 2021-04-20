@@ -227,6 +227,13 @@ class customerController {
             result
         } 
     }
+    //获得某员工上司的下属
+    async getMangerStaff(ctx, next){
+        const {superiorName} = ctx.query 
+        console.log(superiorName)
+        const result = await customerService.getMangerStaff(superiorName)
+        ctx.body = result
+    }
 
 }
 

@@ -11,7 +11,7 @@ const {
     create, customerData, update, remove, getAllCustomers,
     getCustomerByName, updateCustomer, changeUserName, getLossCustomers,
     getLossCustomerList,getMangerCustomer,getMangerCustomerList,getStaffCustomer,getStaffCustomerList,
-    changeClientUser,
+    changeClientUser,getMangerStaff
 } = require('../controller/customer.controller')
 
 
@@ -60,5 +60,8 @@ customerRouter.get('/getStaffCustomer',getStaffCustomer)
 
 //分页获得某员工负责的客户
 customerRouter.get('/getStaffCustomerList',getStaffCustomerList)
+
+//获得当前员工其上级的下属员工
+customerRouter.get('/getMangerStaff',getMangerStaff)
 
 module.exports = customerRouter;  

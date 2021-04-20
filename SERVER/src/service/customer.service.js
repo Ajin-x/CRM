@@ -11,16 +11,16 @@ class customerService {
         return result;
     }
 
-    //添加客户
-    async insertCustomer(customer) {
+    //添加客户  
+    async insertCustomer(customer) { 
         console.log('aaa');
         console.log(customer)
         const statement = 'INSERT INTO `client` (`name`,`phone`,`email`,`type`,`clientDesc`,`username`,`state`) VALUES(?,?,?,?,?,?,?)'
         const [result] = await connection.execute(statement, [customer.name, customer.phone, customer.email, customer.type, customer.clientDesc, customer.username, 0])
         console.log(result)
         return result;
-    }
-
+    } 
+ 
     //获得单个客户信息（根据username）
     async getCustomerByName(name) {
         const statement = `
@@ -178,6 +178,18 @@ class customerService {
         `
         const result = await connection.execute(statement,[username,changeUsername])
         return result;
+    }
+
+    //查询某员工上司的员工
+    async getMangerStaff(superiorName){
+        const statement = `
+        SELECT u.username value ,  
+        u.superior_name label 
+        FROM user u
+        WHERE superior_name = ?  
+        `
+        const result = await connection.execute(statement,[superiorName])
+        return result[0];
     }
 }
 

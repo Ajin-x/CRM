@@ -69,7 +69,6 @@ const verifyPower = async (ctx,next)=>{
 
 
 const verifyAuth = async (ctx, next) => {
-    console.log('验证授权的middleware')
     //1.获取token
     const authorization = ctx.headers.authorization;
     if (!authorization) {
@@ -78,13 +77,11 @@ const verifyAuth = async (ctx, next) => {
     }
     //Bearer    ->后面有空格
     const token = authorization.replace('Bearer ', '')
-    // console.log(token)
     //2.验证token 
     try {
         const result = jwt.verify(token, PUBLIC_KEY, {
             algorithms: ['RS256']
         });
-        // console.log(ctx.body)
         ctx.user = result;
         await next()
     } catch (err) {
@@ -95,12 +92,10 @@ const verifyAuth = async (ctx, next) => {
 }
 
 const verifyPermission = async (ctx, next) => {
-    console.log('验证权限的middleware')
 
     //获取参数
     const { customerId } = ctx.params;
     const { id } = ctx.user;
-    console.log(customerId, id)
     //查询是否具备权限
     try {
         const isPermission = await authService.checkCustomer(customerId, id)

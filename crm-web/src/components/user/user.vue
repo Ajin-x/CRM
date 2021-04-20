@@ -32,13 +32,33 @@
             添加用户</el-button
           >
         </el-col>
+        <!-- 员工职务选框 -->
         <el-select
           v-model="changeClientForm.username"
           placeholder="员工职务"
           @change="fliterUser"
-        >
+          >
           <el-option
             v-for="item in jobs"
+            :key="item.value"
+            :label="item.label"
+            :value="item.label"
+          >
+            <span style="float: left">{{ item.value }}</span>
+            <span style="float: right; color: #8492a6; font-size: 13px">{{
+              item.label
+            }}</span>
+          </el-option>
+        </el-select>
+        <!-- 经理选框 -->
+        <el-select
+          v-model="changeSuperiorFrom.username"
+          placeholder="上级名"
+          @change="filterSuperior"
+          class="superiorName"
+        >
+          <el-option
+            v-for="item in managerInfo"
             :key="item.value"
             :label="item.label"
             :value="item.label"
@@ -259,7 +279,7 @@
 
     <!-- 修改直属上级对话框 -->
     <el-dialog
-      title="修改直属上级"
+      title="修改上级"
       :visible.sync="changeSuperiorVisible"
       width="50%"
       align="left"
@@ -273,6 +293,7 @@
         label-width="100px"
         class="demo-ruleForm"
       >
+          <h3 class='rowUsernameinfo'>{{rowUsernameinfo}}</h3>
         <!-- prop是验证规则 -->
         <el-form-item label="上级名" prop="superior_name">
           <el-select
@@ -461,6 +482,8 @@ export default {
         offset: 0,
         size: 5,
       },
+      //弹出修改上级时对话框的左上角
+      rowUsernameinfo:'',
       //删除客户的信息
       delUserInfo: {},
       // 经理信息
@@ -611,6 +634,10 @@ export default {
       },
       //删除销售员工时表单
       changeClientForm: {
+        username: "",
+        changeUsername: "",
+      },
+      changeSuperiorFrom: {
         username: "",
         changeUsername: "",
       },
@@ -825,16 +852,21 @@ export default {
       const name = {
         name: row.username,
       };
-      console.log(power)
-      if (power === "usermy" || power === "customerall"||power=='customermy') {
-        this.$message.error("您没有相关权限！?");
+      console.log(power);
+      if (
+        power === "usermy" ||
+        power === "customerall" ||
+        power == "customermy"
+      ) {
+        this.$message.error("您没有删除员工的权限！");
         return;
       }
-      if (row.username == "admin") {
-        this.$message.error("您没有相关权限！");
+      console.log(row.username);
+      if (row.username === "系统管理员") {
+        this.$message.error("您没有删除该员工的权限！");
         return;
       }
-      this.$confirm("此操作将永久删除该用户, 是否继续?", "删除用户", {
+      this.$confirm(`此操作将永久删除用户${row.username}, 是否继续?`, `删除用户${row.username}`, {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning",
@@ -844,7 +876,7 @@ export default {
           this.$axios.delete(`/users/${row.id}`).then((res) => {
             this.$message({
               type: "success",
-              message: "删除成功，请转移其管理的员工/客户",
+              message: `删除用户${row.username}成功，请转移其管理的员工/客户`,
             });
             this.checkRemoveItem(row);
             this.getAllUser();
@@ -863,9 +895,12 @@ export default {
     changeSuperior(row) {
       const { power } = this.$store.state.userData;
       const jobName = row.jobName;
+      this.rowUsernameinfo = `您正在修改的是修改${row.username}的上级`
+      console.log(this.rowUsernameinfo)
       console.log(power);
-      if (power !== "systemall") {
-        this.$message.error("您没有相关权限！");
+      console.log(jobName)
+      if (power !== "systemall"&& power!== "userall") {
+        this.$message.error("您没有修改员工上级的权限！");
         return;
       }
       if (
@@ -891,6 +926,7 @@ export default {
           this.changeSuperiorParams
         )
         .then((res) => {
+          this.$message.success(res.data.message);
           this.getAllUser();
           this.getUserList();
           this.changeSuperiorVisible = !this.changeSuperiorVisible;
@@ -924,6 +960,14 @@ export default {
         return item.jobName === value;
       });
     },
+    filterSuperior(value) {
+      console.log(value);
+      console.log(this.alluser);
+      this.userList = this.alluser.filter((item, index) => {
+        console.log(item);
+        return item.superior_name == value;
+      });
+    },
   },
   created() {
     if (this.$store.state.userData.power === "customerall") {
@@ -942,7 +986,7 @@ export default {
             this.userList = result.filter((item, index) => {
               return item.superior_name === this.$store.state.userData.username;
             });
-            this.total  = this.userList.length
+            this.total = this.userList.length;
           }
         });
     } else {
@@ -957,5 +1001,11 @@ export default {
 <style lang='less' scoped>
 .el-row {
   display: flex;
+}
+.superiorName {
+  margin-left: 30px;
+}
+.rowUsernameinfo{
+  padding-left: 38px;
 }
 </style>

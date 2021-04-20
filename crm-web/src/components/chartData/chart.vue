@@ -42,7 +42,7 @@ export default {
     //获取服务器数据
     async getData() {
       let result;
-      if (this.queryInfo.username == "admin") {
+      if (this.queryInfo.username == "系统管理员") {
         result = await this.$axios.get("/customer/customers");
       } else {
         result = await this.$axios.get("/customer/getMangerCustomer", {

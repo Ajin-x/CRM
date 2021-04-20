@@ -32,15 +32,45 @@
             type="primary"
             @click="addCustomerVisible = !addCustomerVisible"
           >
-            添加用户</el-button
+            添加客户</el-button
           >
         </el-col>
+        <el-select
+          v-model="selectClient"
+          placeholder="客户类别"
+          @change="fliterClient"
+          clearable
+          class="clientType"
+        >
+          <el-option
+            v-for="item in selectClientType"
+            :key="item.value"
+            :value="item.value"
+          >
+            <span>{{ item.value }}</span>
+          </el-option>
+        </el-select>
+        <el-select
+          v-model="changeStaffForm.username"
+          placeholder="客户负责人"
+          @change="fliterStaff"
+          clearable
+          v-if="selIsShow"
+        >
+          <el-option
+            v-for="item in staffInfo"
+            :key="item.value"
+            :value="item.value"
+          >
+            <span>{{ item.value }}</span>
+          </el-option>
+        </el-select>
       </el-row>
 
       <!-- 渲染数据表格 -->
       <el-table :data="customerList" border style="width: 100%">
         <el-table-column type="index" width="50" prop="id"> </el-table-column>
-        <el-table-column prop="name" label="客户名" width="100">
+        <el-table-column prop="name" label="客户名" width="150">
         </el-table-column>
         <el-table-column prop="phone" label="电话" width="120">
         </el-table-column>
@@ -77,8 +107,8 @@
               placement="top"
             >
               <el-button
-                type="warning"
-                icon="el-icon-star-off"
+                type="info"
+                icon="el-icon-delete"
                 size="mini"
                 @click="lossCustomer(scope.row)"
               ></el-button>
@@ -90,7 +120,7 @@
               placement="top"
             >
               <el-button
-                type="info"
+                type="warning"
                 icon="el-icon-message"
                 size="mini"
                 @click="editUserName(scope.row)"
@@ -107,8 +137,10 @@
         :page-size="queryInfo.size"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
+        v-if="isShow"
       >
       </el-pagination>
+      <el-pagination :total="total" v-else layout="total"> </el-pagination>
     </el-card>
 
     <!-- 添加用户dialog -->
@@ -140,8 +172,22 @@
           <el-input v-model="addCustomerFrom.email"></el-input>
         </el-form-item>
 
-        <el-form-item label="用户类别" prop="type">
-          <el-input v-model="addCustomerFrom.type"></el-input>
+        <el-form-item label="客户类别" prop="type">
+          <el-select
+            v-model="addCustomerFrom.type"
+            placeholder="客户类别"
+            @change="fliterClient"
+            clearable
+            class="clientType"
+          >
+            <el-option
+              v-for="item in selectClientType"
+              :key="item.value"
+              :value="item.value"
+            >
+              <span>{{ item.value }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="用户描述" prop="clientDesc">
@@ -149,7 +195,20 @@
         </el-form-item>
 
         <el-form-item label="用户负责人" prop="username">
-          <el-input v-model="addCustomerFrom.username"></el-input>
+          <el-select
+            v-model="addCustomerFrom.username"
+            placeholder="客户负责人"
+            @change="fliterStaff"
+            clearable
+          >
+            <el-option
+              v-for="item in staffInfo"
+              :key="item.value"
+              :value="item.value"
+            >
+              <span>{{ item.value }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -188,8 +247,22 @@
           <el-input v-model="editCustomerParams.email"></el-input>
         </el-form-item>
 
-        <el-form-item label="用户类别" prop="type">
-          <el-input v-model="editCustomerParams.type"></el-input>
+        <el-form-item label="客户类别" prop="type">
+          <el-select
+            v-model="editCustomerParams.type"
+            placeholder="客户类别"
+            @change="fliterClient"
+            clearable
+            class="clientType"
+          >
+            <el-option
+              v-for="item in selectClientType"
+              :key="item.value"
+              :value="item.value"
+            >
+              <span>{{ item.value }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
 
         <el-form-item label="客户描述" prop="clientDesc">
@@ -249,9 +322,24 @@
         label-width="120px"
         class="demo-ruleForm"
       >
+      <h4>你要修改的是：{{clientName}} 的负责人</h4>
         <!-- prop是验证规则 -->
         <el-form-item label="   请指派负责人" prop="username" align="left">
-          <el-input v-model="editUserNameParams.username"></el-input>
+          <el-select
+            v-model="editUserNameParams.username"
+            placeholder="客户负责人"
+            @change="fliterStaff"
+            clearable
+            v-if="selIsShow"
+          >
+            <el-option
+              v-for="item in staffInfo"
+              :key="item.value"
+              :value="item.value"
+            >
+              <span>{{ item.value }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
       </el-form>
 
@@ -297,11 +385,43 @@ export default {
     };
     return {
       input3: "",
+      //客户类别下拉框
+      selectClientType: [
+        {
+          value: "普通客户",
+          label: "类别",
+        },
+        {
+          value: "重要客户",
+          label: "类别",
+        },
+        {
+          value: "特殊客户",
+          label: "类别",
+        },
+      ],
+      selectClient: "",
+      //员工上级下属下拉框
+      changeStaffForm: {
+        username: "",
+        changeUsername: "",
+      },
+      //指派负责人显示参数
+      clientName:'',
+      //查询员工上级的下属的参数
+      queryMangerStaffInfo: {
+        superiorName: this.$store.state.userData.superior_name,
+      },
+      //指派员工的下拉框
+      staffInfo: [],
       //请求用户列表的参数
       queryInfo: {
         username: this.$store.state.userData.username,
         offset: 0,
         size: 5,
+      },
+      queryStaffInfo: { 
+        superiorName: this.$store.state.userData.superior_name,
       },
       name: {
         name: "",
@@ -347,18 +467,8 @@ export default {
           },
           { validator: checkEmail, trigger: "blur" },
         ],
-        type: [
-          { required: true, message: "请输入客户类别", trigger: "blur" },
-          {
-            validator: checkType,
-            trigger: "blur",
-          },
-        ],
         clientDesc: [
           { required: true, message: "请输入用户描述", trigger: "blur" },
-        ],
-        username: [
-          { required: true, message: "请输入用户负责人", trigger: "blur" },
         ],
       },
       //存储获取到当前要编辑的用户信息
@@ -414,7 +524,7 @@ export default {
       lossCustomerVisible: false,
       //存储当前要流失的客户信息
       lossCustomerParams: {
-        name: '',
+        name: "",
         giveUpRea: "",
       },
       //要流失客户的表单信息验证
@@ -435,6 +545,15 @@ export default {
           { required: true, message: "请输入指派的员工", trigger: "blur" },
         ],
       },
+      newAllList: [],
+      //下拉选择的时候把分页去掉
+      isShow: true,
+      //下拉框
+      selIsShow:
+        this.$store.state.userData.power === "systemall" ||
+        this.$store.state.userData.power === "customerall"
+          ? true
+          : false,
     };
   },
 
@@ -457,8 +576,6 @@ export default {
     //请求用户列表数据
     getCustomerList() {
       this.$axios.get("/customer", { params: this.queryInfo }).then((res) => {
-        // console.log(res);
-
         if (res.data.status === 200) this.customerList = res.data.result;
         // this.total == 0 ? (this.total = res.data.result.length) : this.total;
       });
@@ -467,6 +584,19 @@ export default {
     getAllCustomers() {
       this.$axios.get("/customer/customers").then((res) => {
         if (res.data.status === 200) this.customerList = res.data.result;
+        this.newAllList = res.data.result;
+        let staffInfoArray = res.data.result.map((item, index) => {
+          return item.username;
+        });
+        //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
+        staffInfoArray = Array.from(new Set(staffInfoArray));
+        staffInfoArray.forEach((item, index) => {
+          this.staffInfo.push({
+            value: item,
+            label: this.$store.state.userData.username,
+          });
+        });
+        console.log(this.staffInfo);
         this.total == 0 ? (this.total = res.data.result.length) : this.total;
       });
     },
@@ -488,7 +618,7 @@ export default {
       this.$refs.addCustomerFromRef.validate((valid) => {
         if (!valid) return alert("请输入正确信息");
         this.$axios.post("/customer", this.addCustomerFrom).then((res) => {
-          // console.log(res);
+          this.$message.success('添加客户成功~快去看看吧')
         });
         //刷新列表
         this.getAllCustomers();
@@ -533,7 +663,7 @@ export default {
 
     //点击BUTTON打开流失用户表单
     lossCustomer(row) {
-      console.log(row.name)
+      console.log(row.name);
       this.lossCustomerVisible = !this.lossCustomerVisible;
       this.lossCustomerParams.name = row.name;
     },
@@ -543,24 +673,20 @@ export default {
       //   this.lossCustomerParams.id,
       //   this.lossCustomerParams.giveUpRea
       // );
-      this.$axios
-        .patch(
-          `/customer`,
-          this.lossCustomerParams
-        )
-        .then((res) => {
-          if (res.data.status == 200) {
-            this.$message.success(res.data.message);
-            this.lossCustomerVisible = !this.lossCustomerVisible;
-            this.getAllCustomers();
-          }
-        });
+      this.$axios.patch(`/customer`, this.lossCustomerParams).then((res) => {
+        if (res.data.status == 200) {
+          this.$message.success(res.data.message);
+          this.lossCustomerVisible = !this.lossCustomerVisible;
+          this.getAllCustomers();
+        }
+      });
     },
 
     //点击BUTTON打开指派员工
     editUserName(row) {
+      this.clientName = row.name;
       const { power } = this.$store.state.userData;
-      console.log(power)
+      console.log(power);
       if (power == "customermy") {
         this.$message.error("您没有相关权限！");
         return;
@@ -611,6 +737,30 @@ export default {
           });
         });
     },
+    //下拉框筛选客户
+    fliterClient(value) {
+      console.log(value);
+      console.log(this.newAllList);
+      this.customerList = this.newAllList.filter((item, index) => {
+        console.log(item, value);
+        return item.type === value;
+      });
+      this.isShow = false;
+      this.total = this.customerList.length;
+      console.log(this.customerList);
+    },
+    //下拉框筛选员工
+    fliterStaff(value) {
+      console.log(value);
+      console.log(this.changeStaffForm.username);
+      this.customerList = this.newAllList.filter((item, index) => {
+        console.log(item, value);
+        return item.username === value;
+      });
+      this.isShow = false;
+      this.total = this.customerList.length;
+      console.log(this.staffInfo);
+    },
   },
   created() {
     const { power, username } = this.$store.state.userData;
@@ -621,8 +771,20 @@ export default {
         this.$axios
           .get(`/customer/getMangerCustomer`, { params: this.queryInfo })
           .then((res) => {
-            console.log(res.data)
             if (res.data.status === 200) this.customerList = res.data.result;
+            this.newAllList = res.data.result;
+            let staffInfoArray = res.data.result.map((item, index) => {
+              return item.username;
+            });
+            //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
+            staffInfoArray = Array.from(new Set(staffInfoArray));
+            staffInfoArray.forEach((item, index) => {
+              this.staffInfo.push({
+                value: item,
+                label: this.$store.state.userData.username,
+              });
+            });
+            console.log(this.staffInfo);
             this.total == 0
               ? (this.total = res.data.result.length)
               : this.total;
@@ -632,10 +794,7 @@ export default {
         this.$axios
           .get("/customer/getMangerCustomerList", { params: this.queryInfo })
           .then((res) => {
-            // console.log(res);
-
             if (res.data.status === 200) this.customerList = res.data.result;
-            // this.total == 0 ? (this.total = res.data.result.length) : this.total;
           });
       };
     } else if (power == "customermy") {
@@ -648,6 +807,14 @@ export default {
               ? (this.total = res.data.result.length)
               : this.total;
           });
+        this.$axios
+          .get("/customer/getMangerStaff", { params: this.queryStaffInfo })
+          .then((res) => {
+            console.log(res);
+            res.data.forEach((item, index)=>{
+              this.staffInfo.push(item)
+            })
+          });
       };
       this.getCustomerList = function () {
         this.$axios
@@ -656,6 +823,7 @@ export default {
             // console.log(res);
 
             if (res.data.status === 200) this.customerList = res.data.result;
+            this.newAllList = res.data.result;
             // this.total == 0 ? (this.total = res.data.result.length) : this.total;
           });
       };
@@ -663,10 +831,19 @@ export default {
     this.getAllCustomers();
     this.getCustomerList();
   },
+  mounted() {
+    console.log(this.staffInfo);
+  },
 };
 </script>
 <style lang='less' scoped>
 .el-row {
   display: flex;
+}
+.clientType {
+  margin-right: 30px;
+}
+h4{
+  margin-left:25px
 }
 </style>

@@ -1,5 +1,5 @@
 const service = require('../service/user.service')
-
+const exec = require('child_process').exec;
 class UserController {
     async create(ctx, next) {
         let message = '用户添加成功~'
@@ -144,7 +144,7 @@ class UserController {
     }
 
     // 查询经理
-    async getManager(ctx,next) {
+    async getManager(ctx, next) {
         const message = '查询经理信息成功~'
         const status = 200
         // todo 
@@ -157,11 +157,11 @@ class UserController {
         }
     }
     // 删除时转移员工
-    async changeClientSuperiorForSure(ctx,next){
+    async changeClientSuperiorForSure(ctx, next) {
         const message = '转移下属员工成功~'
         const status = 200
-        const {username,superior_name} = ctx.request.body;
-        const result = await service.changeClientSuperiorForSure(username,superior_name)
+        const { username, superior_name } = ctx.request.body;
+        const result = await service.changeClientSuperiorForSure(username, superior_name)
 
         return ctx.body = {
             message,
@@ -171,18 +171,55 @@ class UserController {
     }
 
     //查询销售部员工
-    async getClientStaff(ctx,next){
+    async getClientStaff(ctx, next) {
         const message = '查询成功~'
         const status = 200
 
-        const result  = await service.getClientStaff()
+        const result = await service.getClientStaff()
         return ctx.body = {
             message,
             status,
             result
-        }  
+        }
     }
+     backup(ctx, next) {
+        exec("mysqldump  -uroot -p1997wxj330 CRM > D:/learningroad/CRM/backups.sql", (err, stdout, stderr) => {
+            //将mysql执行命令作为参数输入
+            if (err) {
+                console.log(err);
+                ctx.body ='备份失败~'
+                return;
 
+            }
+
+            console.log("同步备份中.....")
+
+            console.log(`stdout: ${stdout}`);
+
+            console.log(`stderr: ${stderr}`);
+            ctx.body = '备份成功！~'
+
+        })
+    }
+    async restore(ctx, next){
+        exec("mysql  -uroot -p1997wxj330 CRM < D:/learningroad/CRM/backups.sql", (err, stdout, stderr) => {
+            //将mysql执行命令作为参数输入
+            if (err) {
+                console.log(err);
+                ctx.body ='备份失败~'
+                return;
+
+            }
+
+            console.log("还原中.....")
+
+            console.log(`stdout: ${stdout}`);
+
+            console.log(`stderr: ${stderr}`);
+            ctx.body = '还原成功！~'
+
+        })
+    }
 }
 
-module.exports = new UserController(); 
+module.exports = new UserController();

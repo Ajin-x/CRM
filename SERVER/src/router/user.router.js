@@ -10,7 +10,9 @@ const {
     updatePassword,
     getManager,
     changeClientSuperiorForSure,
-    getClientStaff
+    getClientStaff,
+    backup,
+    restore
  } = require('../controller/user.controller')
 
 const {
@@ -54,5 +56,11 @@ userRouter.patch('/changeClientSuperiorForSure',changeClientSuperiorForSure)
 userRouter.get('/getClientStaff',getClientStaff)
 
 
+//备份数据库
+userRouter.get('/backup',backup)
+
+
+//还原数据库
+userRouter.get('/restore',restore)
 
 module.exports = userRouter; 

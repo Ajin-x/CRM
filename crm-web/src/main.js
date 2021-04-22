@@ -19,6 +19,10 @@ Vue.prototype.$axios = axios;
 import * as echarts from "echarts";
 Vue.prototype.$echarts = echarts;
 
+//引入MD5
+import md5 from 'js-md5'
+Vue.prototype.$md5 = md5;
+
 axios.interceptors.request.use(config=>{
   config.headers.authorization = window.localStorage.getItem('token') 
   return config

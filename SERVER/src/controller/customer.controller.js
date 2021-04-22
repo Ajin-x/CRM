@@ -115,15 +115,13 @@ class customerController {
             message,
             status
         };
-    } 
+    }
     //更新客户负责人 
     async changeUserName(ctx, next) {
         const message = '更改负责人成功~'
         const status = 200
-        const { customerId } = ctx.params;
-        const { username } = ctx.request.body;
-        console.log(customerId, username)
-        const result = await customerService.changeUserName(customerId, username)
+        const { username ,name} = ctx.request.body;
+        const result = await customerService.changeUserName(name, username)
         ctx.body = {
             result,
             status,
@@ -219,19 +217,24 @@ class customerController {
         console.log('aaaa')
         const { changeUsername, username } = ctx.request.body;
         console.log(changeUsername, username)
-        const result = await customerService.changeClientUser(changeUsername,username)
+        const result = await customerService.changeClientUser(changeUsername, username)
 
-        return ctx.body= {
+        return ctx.body = {
             message,
             status,
             result
-        } 
+        }
     }
     //获得某员工上司的下属
-    async getMangerStaff(ctx, next){
-        const {superiorName} = ctx.query 
+    async getMangerStaff(ctx, next) {
+        const { superiorName } = ctx.query
         console.log(superiorName)
         const result = await customerService.getMangerStaff(superiorName)
+        ctx.body = result
+    }
+    //获得所有员工
+    async getAllStaff(ctx, next) {
+        const result = await customerService.getAllStaff()
         ctx.body = result
     }
 

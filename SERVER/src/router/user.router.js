@@ -12,7 +12,8 @@ const {
     changeClientSuperiorForSure,
     getClientStaff,
     backup,
-    restore
+    restore,
+    getFilename
  } = require('../controller/user.controller')
 
 const {
@@ -55,12 +56,12 @@ userRouter.patch('/changeClientSuperiorForSure',changeClientSuperiorForSure)
 // todo 二稿修改：查询销售员工
 userRouter.get('/getClientStaff',getClientStaff)
 
-
 //备份数据库
 userRouter.get('/backup',backup)
-
 
 //还原数据库
 userRouter.get('/restore',restore)
 
+//获取文件名
+userRouter.get('/getFilename',getFilename)
 module.exports = userRouter; 

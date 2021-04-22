@@ -12,15 +12,15 @@ class customerService {
     }
 
     //添加客户  
-    async insertCustomer(customer) { 
+    async insertCustomer(customer) {
         console.log('aaa');
         console.log(customer)
         const statement = 'INSERT INTO `client` (`name`,`phone`,`email`,`type`,`clientDesc`,`username`,`state`) VALUES(?,?,?,?,?,?,?)'
         const [result] = await connection.execute(statement, [customer.name, customer.phone, customer.email, customer.type, customer.clientDesc, customer.username, 0])
         console.log(result)
         return result;
-    } 
- 
+    }
+
     //获得单个客户信息（根据username）
     async getCustomerByName(name) {
         const statement = `
@@ -110,11 +110,11 @@ class customerService {
         return result;
     }
     //更新指派的员工
-    async changeUserName(customerId, username) {
+    async changeUserName(name, username) {
         const statement = `
-        UPDATE client SET username = ?  WHERE id = ?
+        UPDATE client SET username = ?  WHERE name = ?
         `
-        const [result] = await connection.execute(statement, [username, customerId])
+        const [result] = await connection.execute(statement, [username, name])
     }
     //删除客户 
     async remove(customerId) {
@@ -136,7 +136,7 @@ class customerService {
             `
         const result = await connection.execute(statement, [username, username]);
         return result[0];
-    } 
+    }
 
     //分页获得某经理及其下属的客户 
     async getMangerCustomerList(username, offset, size) {
@@ -159,9 +159,9 @@ class customerService {
         `
         const result = await connection.execute(statement, [username]);
         console.log(result[0])
-        return result[0]; 
+        return result[0];
     }
-    async getStaffCustomerList(username,offset,size) {
+    async getStaffCustomerList(username, offset, size) {
         const statement = `
         SELECT * FROM client WHERE state = 0 and username = ?
         LIMIT ?,?
@@ -172,23 +172,33 @@ class customerService {
         return result[0];
     }
 
-    async changeClientUser(changeUsername,username){
+    async changeClientUser(changeUsername, username) {
         const statement = `
         UPDATE client SET username = ? WHERE username= ? 
         `
-        const result = await connection.execute(statement,[username,changeUsername])
+        const result = await connection.execute(statement, [username, changeUsername])
         return result;
     }
 
     //查询某员工上司的员工
-    async getMangerStaff(superiorName){
+    async getMangerStaff(superiorName) {
         const statement = `
         SELECT u.username value ,  
         u.superior_name label 
         FROM user u
         WHERE superior_name = ?  
         `
-        const result = await connection.execute(statement,[superiorName])
+        const result = await connection.execute(statement, [superiorName])
+        return result[0];
+    }
+    async getAllStaff() {
+        const statement = `
+        SELECT u.username value ,  
+        u.superior_name label 
+        FROM user u
+        WHERE job_id = 3  
+        `
+        const result = await connection.execute(statement)
         return result[0];
     }
 }

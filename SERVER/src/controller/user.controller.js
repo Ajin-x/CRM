@@ -127,9 +127,11 @@ class UserController {
     }
 
     async updatePassword(ctx, next) {
+        console.log('aaaa')
         const message = '修改密码成功~请重新登录'
         const status = 200
         const { username, password } = ctx.request.body
+        console.log(username, password)
         // todo 根据username更改用户密码
         const result = await service.updatePassword(username, password)
         console.log(result)
@@ -182,31 +184,31 @@ class UserController {
             result
         }
     }
-     backup(ctx, next) {
-        exec("mysqldump  -uroot -p1997wxj330 CRM > D:/learningroad/CRM/backups.sql", (err, stdout, stderr) => {
+    async backup(ctx, next) {
+        //将生成的文件名插入数据库
+        const { filename } = ctx.query;
+        console.log(filename) 
+        const result = await service.insertDataInfo(filename)
+        exec(`mysqldump  -uroot -p1997wxj330 CRM > D:/learningroad/CRM/${filename}`, (err, stdout, stderr) => {
             //将mysql执行命令作为参数输入
             if (err) {
                 console.log(err);
-                ctx.body ='备份失败~'
+                ctx.body = '备份失败~'
                 return;
-
             }
-
             console.log("同步备份中.....")
-
             console.log(`stdout: ${stdout}`);
-
             console.log(`stderr: ${stderr}`);
-            ctx.body = '备份成功！~'
-
         })
+        ctx.body = '备份成功！~'
     }
-    async restore(ctx, next){
-        exec("mysql  -uroot -p1997wxj330 CRM < D:/learningroad/CRM/backups.sql", (err, stdout, stderr) => {
+    async restore(ctx, next) {
+        const {filename} = ctx.query
+        exec(`mysql  -uroot -p1997wxj330 CRM < D:/learningroad/CRM/${filename}`, (err, stdout, stderr) => {
             //将mysql执行命令作为参数输入
             if (err) {
                 console.log(err);
-                ctx.body ='备份失败~'
+                ctx.body = '备份失败~'
                 return;
 
             }
@@ -216,9 +218,18 @@ class UserController {
             console.log(`stdout: ${stdout}`);
 
             console.log(`stderr: ${stderr}`);
-            ctx.body = '还原成功！~'
-
         })
+        ctx.body = '还原成功！~'
+    }
+    async getFilename(ctx, next){
+        const message = '获得文件名成功~'
+        const status = 200;
+        const result = await service.getFilename();
+        return ctx.body = {
+            status,
+            message,
+            result
+        }
     }
 }
 

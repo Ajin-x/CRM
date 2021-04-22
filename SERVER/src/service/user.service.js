@@ -158,14 +158,30 @@ class UserService {
     //获得销售部员工信息
     async getClientStaff(){
         const statement =`
-        SELECT j.name value , 
-        u.username label 
+        SELECT j.name value ,  
+        u.username label ,u.superior_name tag
         FROM job j
         LEFT JOIN user u ON j.id = u.job_id
-        WHERE j.id =3
+        WHERE j.id =3  
         `
         const result  = await connection.execute(statement)
 
+        return result[0]
+    }
+    //将文件名插入数据库
+    async insertDataInfo(filename){
+        const statement =`
+        INSERT INTO backup (name) VALUES(?)
+        `
+        const result  = await connection.execute(statement,[filename])
+
+        return result
+    }
+    async getFilename(){
+        const statement =`
+        SELECT name as value FROM backup
+        `
+        const result = await connection.execute(statement)
         return result[0]
     }
 }

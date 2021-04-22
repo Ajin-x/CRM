@@ -58,7 +58,7 @@
           v-if="selIsShow"
         >
           <el-option
-            v-for="item in staffInfo"
+            v-for="item in staffInfo2"
             :key="item.value"
             :value="item.value"
           >
@@ -176,7 +176,6 @@
           <el-select
             v-model="addCustomerFrom.type"
             placeholder="客户类别"
-            @change="fliterClient"
             clearable
             class="clientType"
           >
@@ -198,11 +197,10 @@
           <el-select
             v-model="addCustomerFrom.username"
             placeholder="客户负责人"
-            @change="fliterStaff"
             clearable
           >
             <el-option
-              v-for="item in staffInfo"
+              v-for="item in staffInfo3"
               :key="item.value"
               :value="item.value"
             >
@@ -322,13 +320,12 @@
         label-width="120px"
         class="demo-ruleForm"
       >
-      <h4>你要修改的是：{{clientName}} 的负责人</h4>
+        <h4>你要修改的是：{{ clientName }} 的负责人</h4>
         <!-- prop是验证规则 -->
         <el-form-item label="   请指派负责人" prop="username" align="left">
           <el-select
             v-model="editUserNameParams.username"
             placeholder="客户负责人"
-            @change="fliterStaff"
             clearable
             v-if="selIsShow"
           >
@@ -407,21 +404,26 @@ export default {
         changeUsername: "",
       },
       //指派负责人显示参数
-      clientName:'',
+      clientName: "",
       //查询员工上级的下属的参数
       queryMangerStaffInfo: {
         superiorName: this.$store.state.userData.superior_name,
       },
       //指派员工的下拉框
       staffInfo: [],
+      staffInfo2: [],
+      staffInfo3: [],
       //请求用户列表的参数
       queryInfo: {
         username: this.$store.state.userData.username,
         offset: 0,
         size: 5,
       },
-      queryStaffInfo: { 
+      queryStaffInfo: {
         superiorName: this.$store.state.userData.superior_name,
+      },
+      queyStaffInfo2: {
+        superiorName: this.$store.state.userData.username,
       },
       name: {
         name: "",
@@ -537,7 +539,7 @@ export default {
       editUserNameVisible: false,
       //指派负责员工的信息
       editUserNameParams: {
-        customerId: 0,
+        name: '',
         username: "",
       },
       editUserNameParamsRul: {
@@ -588,15 +590,29 @@ export default {
         let staffInfoArray = res.data.result.map((item, index) => {
           return item.username;
         });
-        //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
-        staffInfoArray = Array.from(new Set(staffInfoArray));
-        staffInfoArray.forEach((item, index) => {
-          this.staffInfo.push({
-            value: item,
-            label: this.$store.state.userData.username,
-          });
+        this.$axios.get("/customer/getAllstaff").then((res) => {
+          console.log(res);
+          if (
+            this.staffInfo.length === 0 &&
+            this.staffInfo2.length === 0 &&
+            this.staffInfo3.length === 0
+          ) {
+            res.data.forEach((item, index) => {
+              this.staffInfo.push(item);
+              this.staffInfo2.push(item);
+              this.staffInfo3.push(item);
+            });
+          }
         });
-        console.log(this.staffInfo);
+        //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
+        // staffInfoArray = Array.from(new Set(staffInfoArray));
+        // staffInfoArray.forEach((item, index) => {
+        //   this.staffInfo.push({
+        //     value: item,
+        //     label: this.$store.state.userData.username,
+        //   });
+        // });
+        // console.log(this.staffInfo);
         this.total == 0 ? (this.total = res.data.result.length) : this.total;
       });
     },
@@ -618,7 +634,7 @@ export default {
       this.$refs.addCustomerFromRef.validate((valid) => {
         if (!valid) return alert("请输入正确信息");
         this.$axios.post("/customer", this.addCustomerFrom).then((res) => {
-          this.$message.success('添加客户成功~快去看看吧')
+          this.$message.success("添加客户成功~快去看看吧");
         });
         //刷新列表
         this.getAllCustomers();
@@ -692,14 +708,15 @@ export default {
         return;
       }
       this.editUserNameVisible = !this.editUserNameVisible;
-      this.editUserNameParams.customerId = row.id;
+      this.editUserNameParams.name = row.name;
       this.editUserNameParams.username = row.username;
+      console.log(this.editUserNameParams)
     },
     //点击确定更改负责员工
     editUserNameForSure() {
       this.$axios
         .patch(
-          `/customer/username/${this.editUserNameParams.customerId}`,
+          `/customer/username`,
           this.editUserNameParams
         )
         .then((res) => {
@@ -776,15 +793,33 @@ export default {
             let staffInfoArray = res.data.result.map((item, index) => {
               return item.username;
             });
-            //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
-            staffInfoArray = Array.from(new Set(staffInfoArray));
-            staffInfoArray.forEach((item, index) => {
-              this.staffInfo.push({
-                value: item,
-                label: this.$store.state.userData.username,
+            this.$axios
+              .get("/customer/getMangerStaff", { params: this.queyStaffInfo2 })
+              .then((res) => {
+                console.log(res);
+                res.data.forEach((item, index) => {
+                  if (
+                    this.staffInfo.length === 0 &&
+                    this.staffInfo2.length === 0 &&
+                    this.staffInfo3.length === 0
+                  ) {
+                    res.data.forEach((item, index) => {
+                      this.staffInfo.push(item);
+                      this.staffInfo2.push(item);
+                      this.staffInfo3.push(item);
+                    });
+                  }
+                });
               });
-            });
-            console.log(this.staffInfo);
+            //将value值单独放到一个数组中去重，然后那去重后的数组重新push到this.staffInfo
+            //   staffInfoArray = Array.from(new Set(staffInfoArray));
+            //   staffInfoArray.forEach((item, index) => {
+            //     this.staffInfo.push({
+            //       value: item,
+            //       label: this.$store.state.userData.username,
+            //     });
+            //   });
+            //   console.log(this.staffInfo);
             this.total == 0
               ? (this.total = res.data.result.length)
               : this.total;
@@ -811,9 +846,19 @@ export default {
           .get("/customer/getMangerStaff", { params: this.queryStaffInfo })
           .then((res) => {
             console.log(res);
-            res.data.forEach((item, index)=>{
-              this.staffInfo.push(item)
-            })
+            res.data.forEach((item, index) => {
+              if (
+                this.staffInfo.length === 0 &&
+                this.staffInfo2.length === 0 &&
+                this.staffInfo3.length === 0
+              ) {
+                res.data.forEach((item, index) => {
+                  this.staffInfo.push(item);
+                  this.staffInfo2.push(item);
+                  this.staffInfo3.push(item);
+                });
+              }
+            });
           });
       };
       this.getCustomerList = function () {
@@ -843,7 +888,7 @@ export default {
 .clientType {
   margin-right: 30px;
 }
-h4{
-  margin-left:25px
+h4 {
+  margin-left: 25px;
 }
 </style>

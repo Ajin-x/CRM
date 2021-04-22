@@ -15,17 +15,27 @@
           <span class="headSpan"
             >您的职位是，{{ this.$store.state.userData.jobName }}</span
           >
-          <el-button type="text" @click="changePasswordVisible = true"
-            >点击此处修改密码</el-button
+          <el-button type="primary" @click="changePasswordVisible = true" round
+            >修改密码</el-button
           >
-          <el-button type="primary" @click="loginOut">登出</el-button>
+          <el-button type="primary" @click="loginOut" round>登出</el-button>
         </div>
 
         <!-- header里面点击修改密码弹出对话框 -->
-        <el-dialog title="修改密码" :visible.sync="changePasswordVisible">
-          <el-form :model="userFrom">
+        <el-dialog
+          title="修改密码"
+          :visible.sync="changePasswordVisible"
+          @close="closeChangePassword"
+        >
+          <el-form :model="userFrom" ref="userFromRef">
             <el-form-item label="用户名">
               <el-input v-model="userFrom.username"></el-input>
+            </el-form-item>
+            <el-form-item label="旧密码">
+              <el-input
+                v-model="userFrom.oldPassword"
+                type="password"
+              ></el-input>
             </el-form-item>
             <el-form-item label="新密码">
               <el-input v-model="userFrom.password" type="password"></el-input>
@@ -33,7 +43,9 @@
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="changePasswordVisible = false">取 消</el-button>
-            <el-button type="primary" @click="changePassword">确 定</el-button>
+            <el-button type="primary" @click="changePassword('userFrom')"
+              >确 定</el-button
+            >
           </div>
         </el-dialog>
       </el-header>
@@ -42,119 +54,37 @@
           <!-- 左边菜单导航 -->
           <!-- 打开路由 router:true-->
           <el-menu
-            default-active="1"
+            default-active="2"
             class="el-menu-vertical-demo"
-            background-color="rgb(51, 55, 68)"
+            background-color="rgb(51, 55, 68"
             text-color="#fff"
-            active-text-color="#409EFF"
-            :unique-opened="true"
-            :router="true"
-            v-if="isCustomer"
+            active-text-color="#ffd04b"
+            router
           >
-            <!-- 一级导航 -->
             <el-submenu index="1">
               <template slot="title">
-                <i class="el-icon-location"></i>
-                <span>员工管理</span>
+                <i class="el-icon-menu"></i>
+                <span>系统功能</span>
               </template>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="/user">
-                <i class="el-icon-menu"></i>
-                <span slot="title">管理员工信息</span>
-              </el-menu-item>
-            </el-submenu>
-          </el-menu>
-
-          <el-menu
-            default-active="1"
-            class="el-menu-vertical-demo"
-            background-color="rgb(51, 55, 68)"
-            text-color="#fff"
-            active-text-color="#409EFF"
-            :unique-opened="true"
-            :router="true"
-            v-if="isService"
-          >
-            <!-- 一级导航 -->
-            <el-submenu index="1">
-              <template slot="title">
-                <i class="el-icon-location"></i>
-                <span>客户管理</span>
-              </template>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="/customer" class="menuHover">
-                <i class="el-icon-menu"></i>
-                <span slot="title">客户信息</span>
-              </el-menu-item>
-
-              <!-- 流失客户 -->
-              <el-menu-item index="/lossCustomer" class="menuHover">
-                <i class="el-icon-menu"></i>
-                <span slot="title">流失客户管理</span>
-              </el-menu-item>
-            </el-submenu>
-          </el-menu>
-          <!-- 数据分析 -->
-          <el-menu
-            default-active="1"
-            class="el-menu-vertical-demo"
-            background-color="rgb(51, 55, 68)"
-            text-color="#fff"
-            active-text-color="#409EFF"
-            :unique-opened="true"
-            :router="true"
-            v-if="isShow"
-          >
-            <!-- 一级导航 -->
-            <el-submenu index="1">
-              <template slot="title">
-                <i class="el-icon-location"></i>
-                <span>数据分析</span>
-              </template>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="/customerData">
-                <i class="el-icon-menu"></i>
-                <span slot="title">每月新增客户</span>
-              </el-menu-item>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="/customerData2">
-                <i class="el-icon-menu"></i>
-                <span slot="title">每月流失客户</span>
-              </el-menu-item>
-            </el-submenu>
-          </el-menu>
-          <el-menu
-            default-active="1"
-            class="el-menu-vertical-demo"
-            background-color="rgb(51, 55, 68)"
-            text-color="#fff"
-            active-text-color="#409EFF"
-            :unique-opened="true"
-            :router="true"
-            menu-trigger="click"
-            v-if="isAdmin"
-          >
-            <!-- 一级导航 -->
-            <el-submenu index="1">
-              <template slot="title">
-                <i class="el-icon-location"></i>
-                <span>信息维护</span>
-              </template>
-
-              <!-- 二级导航 -->
-              <!-- 路由跳转是在Index中写 -->
-              <el-menu-item index="/delCustomer">
-                <i class="el-icon-menu"></i>
-                <span slot="title">维护管理</span>
-              </el-menu-item>
+              <el-submenu index="1-1" v-if="isCustomer">
+                <template slot="title">员工管理</template>
+                <el-menu-item index="/user">员工信息</el-menu-item>
+              </el-submenu>
+              <el-submenu index="1-2" v-if="isService">
+                <template slot="title">客户管理</template>
+                <el-menu-item index="/customer">客户信息</el-menu-item>
+                <el-menu-item index="/lossCustomer">流失客户信息</el-menu-item>
+              </el-submenu>
+              <el-submenu index="1-3" v-if="isShow">
+                <template slot="title">数据分析</template>
+                <el-menu-item index="/customerData">每月新增客户</el-menu-item>
+                <el-menu-item index="/customerData2">每月流失客户</el-menu-item>
+              </el-submenu>
+              <el-submenu index="1-4" v-if="isAdmin">
+                <template slot="title">数据库备份</template>
+                <el-menu-item @click="barkupsql">备份</el-menu-item>
+                <el-menu-item @click="restoresql">还原</el-menu-item>
+              </el-submenu>
             </el-submenu>
           </el-menu>
         </el-aside>
@@ -166,6 +96,30 @@
       </el-container>
     </el-container>
     <!-- <button >退出</button> -->
+
+    <!-- 数据库备份dialog -->
+    <el-dialog title="选择要还原的数据库" :visible.sync="backupVisible">
+      <el-form :model="backupform">
+        <el-form-item label="活动区域">
+          <el-select
+            v-model="backupform.filename.filename"
+            placeholder="请选择活动区域"
+          >
+            <el-option
+              v-for="item in filenames"
+              :key="item.value"
+              :value="item.value"
+            >
+              <span>{{ item.value }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="backupVisible = false">取 消</el-button>
+        <el-button type="primary" @click="restoresqlForSure">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -173,6 +127,14 @@
 export default {
   data() {
     return {
+      // 还原数据库对话框
+      backupVisible: false,
+      backupform: {
+        filename: {
+          filename: "",
+        },
+      },
+      filenames: [],
       isShow:
         this.$store.state.userData.power == "customerall" ||
         this.$store.state.userData.power == "systemall"
@@ -187,7 +149,11 @@ export default {
           ? false
           : true,
       changePasswordVisible: false,
-      userFrom: { ...this.$store.state.userData },
+      userFrom: {
+        username: this.$store.state.userData.username,
+        password: "",
+        oldPassword: "",
+      },
     };
   },
 
@@ -200,15 +166,86 @@ export default {
       window.localStorage.removeItem("token");
       this.$router.push("/login");
     },
-    changePassword() {
-      this.$axios.patch("/users/updatePassword", this.userFrom).then((res) => {
-        if (res.data.status == 200) {
-          this.$router.push("/login");
-          this.$message.success(res.data.message);
+    changePassword(userFrom) {
+      this.$refs.userFromRef.validate((valid) => {
+        console.log(
+          this.userFrom.oldPassword,
+          this.$store.state.userData.password
+        );
+        if (
+          this.$md5(this.userFrom.oldPassword) !==
+          this.$store.state.userData.password
+        ) {
+          this.$message.error("请输入正确的旧密码！");
+          return;
+        } else if (this.userFrom.password == "") {
+          this.$message.error("新密码不能为空！");
+          return;
         }
+        this.$axios
+          .patch("/users/updatePassword", this.userFrom)
+          .then((res) => {
+            if (res.data.status == 200) {
+              this.$router.push("/login");
+              this.$message.success(res.data.message);
+            }
+          });
+        console.log(this.userFrom);
+        this.changePasswordVisible = !this.changePasswordVisible;
       });
-      console.log(this.userFrom);
-      this.changePasswordVisible = !this.changePasswordVisible;
+    },
+    closeChangePassword() {
+      this.$refs.userFrom.resetFields();
+    },
+    barkupsql() {
+      let time =
+        "" +
+        new Date().getFullYear() +
+        `${new Date().getMonth() + 1}` +
+        new Date().getDate() +
+        new Date().getHours() +
+        new Date().getMinutes();
+      let filename = {
+        filename: `backup${time}.sql`,
+      };
+      this.$confirm(
+        `将会为您生成一个${filename.filename}文件, 是否继续?`,
+        `备份当前数据库`,
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
+        .then(() => {
+          this.$axios.get("/users/backup", { params: filename }).then((res) => {
+            this.$message.success(res.data);
+          });
+        })
+        .catch(() => {
+          this.$message.error("备份失败!");
+        });
+    },
+    restoresql() {
+      this.backupVisible = !this.backupVisible;
+      this.$axios.get("/users/getFilename").then((res) => {
+        console.log(res.data.result);
+        this.filenames = res.data.result;
+      });
+      // let time =
+      //   "" +
+      //   new Date().getFullYear() +
+      //   `${new Date().getMonth() + 1}` +
+      //   new Date().getDate();
+      // console.log(time);
+    },
+    restoresqlForSure() {
+      this.$axios
+        .get("/users/restore", { params: this.backupform.filename })
+        .then((res) => {
+          this.$message.success(res.data);
+          this.backupVisible = false;
+        });
     },
   },
   created() {

@@ -11,7 +11,7 @@ const {
     create, customerData, update, remove, getAllCustomers,
     getCustomerByName, updateCustomer, changeUserName, getLossCustomers,
     getLossCustomerList,getMangerCustomer,getMangerCustomerList,getStaffCustomer,getStaffCustomerList,
-    changeClientUser,getMangerStaff
+    changeClientUser,getMangerStaff,getAllStaff
 } = require('../controller/customer.controller')
 
 
@@ -43,7 +43,7 @@ customerRouter.patch('/customerData/:customerId', updateCustomer)
 customerRouter.patch('/', update)
 
 //更新负责员工
-customerRouter.patch('/username/:customerId', changeUserName)
+customerRouter.patch('/username', changeUserName)
 
 //删除客户 
 customerRouter.delete('/:customerId', remove)
@@ -63,5 +63,8 @@ customerRouter.get('/getStaffCustomerList',getStaffCustomerList)
 
 //获得当前员工其上级的下属员工
 customerRouter.get('/getMangerStaff',getMangerStaff)
+
+//获得所有销售部员工
+customerRouter.get('/getAllStaff',getAllStaff)
 
 module.exports = customerRouter;  

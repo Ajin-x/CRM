@@ -37,7 +37,8 @@
           v-model="changeClientForm.username"
           placeholder="员工职务"
           @change="fliterUser"
-          >
+          clearable
+        >
           <el-option
             v-for="item in jobs"
             :key="item.value"
@@ -56,6 +57,7 @@
           placeholder="上级名"
           @change="filterSuperior"
           class="superiorName"
+          clearable
         >
           <el-option
             v-for="item in managerInfo"
@@ -153,8 +155,10 @@
         :page-size="queryInfo.size"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
+        v-if="isShow"
       >
       </el-pagination>
+      <el-pagination :total="total" v-else layout="total"> </el-pagination>
     </el-card>
 
     <!-- 添加用户dialog -->
@@ -293,7 +297,7 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-          <h3 class='rowUsernameinfo'>{{rowUsernameinfo}}</h3>
+        <h3 class="rowUsernameinfo">{{ rowUsernameinfo }}</h3>
         <!-- prop是验证规则 -->
         <el-form-item label="上级名" prop="superior_name">
           <el-select
@@ -301,7 +305,7 @@
             placeholder="请选择"
           >
             <el-option
-              v-for="item in managerInfo"
+              v-for="item in changeSuperiorInfo"
               :key="item.value"
               :label="item.label"
               :value="item.label"
@@ -373,7 +377,7 @@
 
     <!-- 如果是后勤经理弹出对话框 -->
     <el-dialog
-      title="请先将其员工转移"
+      title="请先将其下属转移"
       :visible.sync="changeStaffSuperiorVisible"
       width="50%"
       align="left"
@@ -483,7 +487,7 @@ export default {
         size: 5,
       },
       //弹出修改上级时对话框的左上角
-      rowUsernameinfo:'',
+      rowUsernameinfo: "",
       //删除客户的信息
       delUserInfo: {},
       // 经理信息
@@ -567,6 +571,7 @@ export default {
       editUserVisible: false,
       //控制修改上级的显示隐藏
       changeSuperiorVisible: false,
+      changeSuperiorInfo: [],
       //修改上级的参数
       changeSuperiorParams: {
         id: 0,
@@ -632,6 +637,8 @@ export default {
         username: "",
         superior_name: "",
       },
+      //控制页数显示隐藏
+      isShow: true,
       //删除销售员工时表单
       changeClientForm: {
         username: "",
@@ -663,7 +670,7 @@ export default {
     //根据用户名获取单个用户
     getUser(username) {
       username == "" ? this.username : username;
-      console.log(username, this.$store.state.userData.power);
+      // console.log(username, this.$store.state.userData.power);
       if (
         username.username === "admin" &&
         this.$store.state.userData.power !== "systemall"
@@ -710,7 +717,7 @@ export default {
             });
             this.userList = result;
             this.alluser = result;
-            console.log(this.userList);
+            // console.log(this.userList);
             this.total == 0
               ? (this.total = res.data.result.length)
               : this.total;
@@ -740,8 +747,9 @@ export default {
           let username = {
             username: res.data.username,
           };
-          console.log(username);
-          this.getUser(username);
+          // console.log(username);
+          // this.getUser(username);
+          location.reload();
           this.$message.success(res.data.message);
         });
         //关闭对话框
@@ -756,9 +764,13 @@ export default {
     //点击编辑按钮 编辑用户信息
     editUser(row) {
       const { power } = this.$store.state.userData;
-      if (row.username == "admin" && power !== "systemall") {
+      if (row.username == "系统管理员" && power !== "systemall") {
         this.$message.error("您没有相关权限！");
         return;
+      }
+      if(power=='customerall'){
+        this.$message.error("销售部经理无权修改！")
+        return 
       }
       const username = { username: row.username };
       // console.log(username);
@@ -779,7 +791,7 @@ export default {
     },
     // todo 删除前先check信息
     checkRemoveItem(row) {
-      console.log(row);
+      // console.log(row);
       // todo 如果是经理，弹出将其下属转移的弹框
       const jobName = row.jobName;
       // 这里报错了 不管先实现 不行再用username查一遍再做判断
@@ -799,49 +811,40 @@ export default {
     },
     // 确认转移经理的员工
     changeClientSuperiorForSure() {
-      console.log(this.changeClientSuperiorForm);
+      // console.log(this.changeClientSuperiorForm);
       this.$axios
         .patch(
           "/users/changeClientSuperiorForSure",
           this.changeClientSuperiorForm
         )
         .then((res) => {
-          console.log(res);
-          console.log(this.changeClientSuperiorForm);
+          // console.log(res);
+          // console.log(this.changeClientSuperiorForm);
           if (res.data.status === 200) {
-            console.log(
-              this.changeClientSuperiorVisible,
-              this.changeStaffSuperiorVisible
-            );
+            console.log(this.changeStaffSuperiorVisible);
             if (this.changeClientSuperiorVisible) {
               this.changeClientSuperiorVisible = !this
                 .changeClientSuperiorVisible;
             }
             if (this.changeStaffSuperiorVisible) {
-              this.changeClientSuperiorVisible = !this
-                .changeClientSuperiorVisible;
+              this.changeStaffSuperiorVisible = !this
+                .changeStaffSuperiorVisible;
             }
-            console.log(
-              this.changeClientSuperiorVisible,
-              this.changeStaffSuperiorVisible
-            );
             this.$message.success(res.data.message);
-            this.getAllUser();
-            this.getUserList();
+            location.reload();
           }
         });
     },
     //确认转移员工的客户
     changeClientFormForSure() {
-      console.log(this.changeClientForm);
+      // console.log(this.changeClientForm);
       this.$axios
         .patch("/customer/changeClientUser", this.changeClientForm)
         .then((res) => {
           if (res.data.status == 200) {
             this.$message.success(res.data.message);
             this.changeClientVisible = !this.changeClientVisible;
-            this.getAllUser();
-            this.getUserList();
+            location.reload();
           }
         });
     },
@@ -852,7 +855,7 @@ export default {
       const name = {
         name: row.username,
       };
-      console.log(power);
+      // console.log(power);
       if (
         power === "usermy" ||
         power === "customerall" ||
@@ -861,23 +864,64 @@ export default {
         this.$message.error("您没有删除员工的权限！");
         return;
       }
-      console.log(row.username);
+      // console.log(row.username);
       if (row.username === "系统管理员") {
         this.$message.error("您没有删除该员工的权限！");
         return;
       }
-      this.$confirm(`此操作将永久删除用户${row.username}, 是否继续?`, `删除用户${row.username}`, {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
+      this.$confirm(
+        `此操作将永久删除用户${row.username}, 是否继续?`,
+        `删除用户${row.username}`,
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      )
         .then(() => {
+          if (row.jobName === "销售部经理") {
+            console.log(row.username);
+            this.clientMangerInfo = this.clientMangerInfo.filter(
+              (item, index) => {
+                console.log(item.label);
+                return item.label !== row.username;
+              }
+            );
+            this.managerInfo = this.managerInfo.filter((item, index) => {
+              return item.label !== row.username;
+            });
+            console.log(this.managerInfo, this.clientMangerInfo);
+          }
+          if (row.jobName === "后勤部经理") {
+            this.staffMangerInfo = this.staffMangerInfo.filter(
+              (item, index) => {
+                return item.label !== row.username;
+              }
+            );
+            this.managerInfo = this.managerInfo.filter((item, index) => {
+              return item.label !== row.username;
+            });
+            console.log(this.managerInfo, this.staffMangerInfo);
+          }
+          if (row.jobName === "销售部员工") {
+            this.clientStaffInfo = this.clientStaffInfo.filter(
+              (item, index) => {
+                return item.label !== row.username &&item.tag===row.superior_name;
+              }
+            );
+            this.managerInfo = this.managerInfo.filter((item, index) => {
+              return item.label !== row.username;
+            });
+            console.log(this.managerInfo, this.staffMangerInfo);
+          }
           // 点击确定发送后台请求，删除该用户
           this.$axios.delete(`/users/${row.id}`).then((res) => {
             this.$message({
               type: "success",
               message: `删除用户${row.username}成功，请转移其管理的员工/客户`,
             });
+            console.log(this.clientMangerInfo);
+            console.log(this.managerInfo);
             this.checkRemoveItem(row);
             this.getAllUser();
             this.getUserList();
@@ -895,11 +939,11 @@ export default {
     changeSuperior(row) {
       const { power } = this.$store.state.userData;
       const jobName = row.jobName;
-      this.rowUsernameinfo = `您正在修改的是修改${row.username}的上级`
-      console.log(this.rowUsernameinfo)
-      console.log(power);
-      console.log(jobName)
-      if (power !== "systemall"&& power!== "userall") {
+      this.rowUsernameinfo = `您正在修改的是修改${row.username}的上级`;
+      // console.log(this.rowUsernameinfo);
+      // console.log(power);
+      // console.log(jobName);
+      if (power !== "systemall" && power !== "userall") {
         this.$message.error("您没有修改员工上级的权限！");
         return;
       }
@@ -913,9 +957,9 @@ export default {
       }
       this.changeSuperiorParams.id = row.id;
       if (jobName == "销售部员工") {
-        this.managerInfo = this.clientMangerInfo;
+        this.changeSuperiorInfo = this.clientMangerInfo;
       } else if (jobName == "后勤部员工") {
-        this.managerInfo = this.staffMangerInfo;
+        this.changeSuperiorInfo = this.staffMangerInfo;
       }
       this.changeSuperiorVisible = !this.changeSuperiorVisible;
     },
@@ -942,7 +986,7 @@ export default {
             this.clientMangerInfo.push(item);
           }
         });
-        console.log(this.clientMangerInfo, this.staffMangerInfo);
+        // console.log(this.clientMangerInfo, this.staffMangerInfo);
       });
     },
     getClientStaff() {
@@ -953,20 +997,24 @@ export default {
     },
     // 点击单选框选出对应的角色
     fliterUser(value) {
-      console.log(value);
-      console.log(this.alluser);
+      // console.log(value);
+      // console.log(this.alluser);
       this.userList = this.alluser.filter((item, index) => {
-        console.log(item);
+        // console.log(item);
         return item.jobName === value;
       });
+      this.isShow = false;
+      this.total = this.userList.length;
     },
     filterSuperior(value) {
-      console.log(value);
-      console.log(this.alluser);
+      // console.log(value);
+      // console.log(this.alluser);
       this.userList = this.alluser.filter((item, index) => {
-        console.log(item);
+        // console.log(item);
         return item.superior_name == value;
       });
+      this.isShow = false;
+      this.total = this.userList.length;
     },
   },
   created() {
@@ -1005,7 +1053,7 @@ export default {
 .superiorName {
   margin-left: 30px;
 }
-.rowUsernameinfo{
+.rowUsernameinfo {
   padding-left: 38px;
 }
 </style>

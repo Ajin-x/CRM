@@ -30,7 +30,7 @@ class UserController {
 
         console.log(username)
         //TODO 查询用户
-        const result = await service.getUserByName(username);
+        const result = await service.findUserByName(username);
 
         ctx.body = {
             status,
@@ -228,6 +228,23 @@ class UserController {
         return ctx.body = {
             status,
             message,
+            result
+        }
+    }
+    //修改角色
+    async changeJob(ctx, next){
+        const {changeId,username,} =ctx.request.body;
+        ctx.body = '修改角色接口跑通~'
+    }
+    //重置密码
+    async resetPassword(ctx, next){
+        const message='重置密码为：123456，通知该员工吧~'
+        const status = 200;
+        const {id} = ctx.params;
+        const result = await service.resetPassword(id);
+        return ctx.body = {
+            message,
+            status,
             result
         }
     }

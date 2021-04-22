@@ -28,7 +28,11 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary" @click="addUserVisible = !addUserVisible">
+          <el-button
+            type="primary"
+            @click="addUserVisible = !addUserVisible"
+            v-if="isCustomerAll"
+          >
             添加用户</el-button
           >
         </el-col>
@@ -38,6 +42,7 @@
           placeholder="员工职务"
           @change="fliterUser"
           clearable
+          v-if="isCustomerAll"
         >
           <el-option
             v-for="item in jobs"
@@ -58,6 +63,7 @@
           @change="filterSuperior"
           class="superiorName"
           clearable
+          v-if="isCustomerAll"
         >
           <el-option
             v-for="item in managerInfo"
@@ -80,7 +86,7 @@
         style="width: 100%"
         :key="userList.index"
       >
-        <el-table-column type="index" width="180" prop="id"> </el-table-column>
+        <el-table-column type="index" width="100" prop="id"> </el-table-column>
         <el-table-column prop="username" label="用户名" width="180">
         </el-table-column>
         <el-table-column prop="phone" label="电话"> </el-table-column>
@@ -144,6 +150,19 @@
                 @click="changeSuperior(scope.row)"
               ></el-button>
             </el-tooltip>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="重置密码"
+              placement="top"
+            >
+              <el-button
+                type="success"
+                icon="el-icon-check"
+                size="mini"
+                @click="resetPassword(scope.row)"
+              ></el-button>
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -190,7 +209,7 @@
           <el-input v-model="addUserFrom.phone"></el-input>
         </el-form-item>
 
-        <el-form-item label="角色">
+        <el-form-item label="角色" prop="job_id">
           <el-select v-model="addUserFrom.job_id" placeholder="请选择">
             <el-option
               v-for="item in jobs"
@@ -207,7 +226,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="部门号">
+        <el-form-item label="部门号" prop="department_id">
           <el-select v-model="addUserFrom.department_id" placeholder="请选择">
             <el-option
               v-for="item in departments"
@@ -230,7 +249,7 @@
               v-for="item in managerInfo"
               :key="item.value"
               :label="item.label"
-              :value="item.value"
+              :value="item.label"
             >
               <span style="float: left">{{ item.label }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{
@@ -476,9 +495,14 @@ export default {
       cb(new Error("请输入合法的手机号码"));
     };
     return {
-      //判断是否是admin
-      isAdmin: this.$store.state.power === "systemall" ? true : false,
+      //添加员工上级名出BUG，另写一个数组
+      jobs_add: [],
 
+      //判断是否是admin
+      isAdmin: this.$store.state.userData.power === "systemall" ? true : false,
+      //判断是否是客户经理
+      isCustomerAll:
+        this.$store.state.userData.power === "customerall" ? false : true,
       input3: "",
       //请求用户列表的参数
       queryInfo: {
@@ -546,9 +570,9 @@ export default {
           ,
           { validator: checkMobile, trigger: "blur" },
         ],
-        superior_name: [
-          { required: false, message: "请输入该用户上级", trigger: "blur" },
-        ],
+        superior_name: [{ required: true, message: "请选择你的上级！" }],
+        job_id: [{ required: true, message: "请选择该用户的角色！" }],
+        department_id: [{ required: true, message: "请选择该用户的部门！" }],
       },
       //存储获取到当前要编辑的用户信息
       editUserParams: {
@@ -680,8 +704,18 @@ export default {
         return;
       }
       this.$axios.get("/users/user", { params: username }).then((res) => {
-        if (res.data.status === 200) this.userList = res.data.result;
-        this.total == 0 ? (this.total = res.data.result.length) : this.total;
+        console.log(res.data.result);
+        if (res.data.status === 200) {
+          let result = res.data.result.map((item, index) => {
+            return Object.assign(
+              res.data.result[index].user,
+              res.data.result[index].job
+            );
+          });
+          this.isShow = false;
+          this.userList = result;
+          this.total = 1;
+        }
       });
       username = "";
     },
@@ -759,7 +793,7 @@ export default {
     //关闭对话框时清空数据
     closeAddUserVisible() {
       //重置表单
-      this.$refs.addUserFromRef.resetFields();
+      // this.$refs.addUserFromRef.resetFields();
     },
     //点击编辑按钮 编辑用户信息
     editUser(row) {
@@ -768,15 +802,15 @@ export default {
         this.$message.error("您没有相关权限！");
         return;
       }
-      if(power=='customerall'){
-        this.$message.error("销售部经理无权修改！")
-        return 
+      if (power == "customerall") {
+        this.$message.error("销售部经理无权修改！");
+        return;
       }
       const username = { username: row.username };
       // console.log(username);
       this.$axios.get("/users/user", { params: username }).then((res) => {
         // console.log(res);
-        this.editUserParams.username = res.data.result[0].username;
+        this.editUserParams.username = res.data.result[0].user.username;
         this.editUserParams.phone = res.data.result[0].phone;
         this.editUserVisible = !this.editUserVisible;
       });
@@ -906,7 +940,9 @@ export default {
           if (row.jobName === "销售部员工") {
             this.clientStaffInfo = this.clientStaffInfo.filter(
               (item, index) => {
-                return item.label !== row.username &&item.tag===row.superior_name;
+                return (
+                  item.label !== row.username && item.tag === row.superior_name
+                );
               }
             );
             this.managerInfo = this.managerInfo.filter((item, index) => {
@@ -997,7 +1033,7 @@ export default {
     },
     // 点击单选框选出对应的角色
     fliterUser(value) {
-      // console.log(value);
+      console.log(value);
       // console.log(this.alluser);
       this.userList = this.alluser.filter((item, index) => {
         // console.log(item);
@@ -1010,15 +1046,43 @@ export default {
       // console.log(value);
       // console.log(this.alluser);
       this.userList = this.alluser.filter((item, index) => {
-        // console.log(item);
+        console.log(item.superior_name);
         return item.superior_name == value;
       });
       this.isShow = false;
       this.total = this.userList.length;
     },
+    resetPassword(row) {
+      const id = row.id;
+      if (row.username === "系统管理员") {
+        this.$message.error("请勿重置管理员密码！！");
+        return;
+      }
+      if (
+        this.$store.state.userData.power !== "systemall" &&
+        this.$store.state.userData.power !== "userall"
+      ) {
+        this.$message.error("您无权操作！");
+        return;
+      }
+      this.$confirm(
+        `此操作将重置用户${row.username}的密码为123456, 是否继续?`,
+        `重置用户${row.username}密码`,
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning",
+        }
+      ).then(() => {
+        this.$axios.get(`/users/resetPassword/${id}`).then((res) => {
+          this.$message.success(res.data.message);
+        });
+      });
+    },
   },
   created() {
     if (this.$store.state.userData.power === "customerall") {
+      this.isShow = false;
       this.userName.userName = this.$store.state.userData.username;
       // console.log(this.userName)
       this.$axios

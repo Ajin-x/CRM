@@ -13,7 +13,9 @@ const {
     getClientStaff,
     backup,
     restore,
-    getFilename
+    getFilename,
+    changeJob,
+    resetPassword
  } = require('../controller/user.controller')
 
 const {
@@ -64,4 +66,10 @@ userRouter.get('/restore',restore)
 
 //获取文件名
 userRouter.get('/getFilename',getFilename)
+
+//修改角色
+userRouter.patch('/changeJob',changeJob)
+
+//重置密码
+userRouter.get('/resetPassword/:id',resetPassword)
 module.exports = userRouter; 

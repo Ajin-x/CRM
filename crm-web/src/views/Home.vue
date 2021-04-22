@@ -28,9 +28,6 @@
           @close="closeChangePassword"
         >
           <el-form :model="userFrom" ref="userFromRef">
-            <el-form-item label="用户名">
-              <el-input v-model="userFrom.username"></el-input>
-            </el-form-item>
             <el-form-item label="旧密码">
               <el-input
                 v-model="userFrom.oldPassword"
@@ -39,6 +36,9 @@
             </el-form-item>
             <el-form-item label="新密码">
               <el-input v-model="userFrom.password" type="password"></el-input>
+            </el-form-item>
+            <el-form-item label="确认密码">
+              <el-input v-model="userFrom.surePassword" type="password"></el-input>
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -60,6 +60,7 @@
             text-color="#fff"
             active-text-color="#ffd04b"
             router
+            keep-alive
           >
             <el-submenu index="1">
               <template slot="title">
@@ -150,7 +151,8 @@ export default {
           : true,
       changePasswordVisible: false,
       userFrom: {
-        username: this.$store.state.userData.username,
+        username:this.$store.state.userData.username,
+        surePassword:"",
         password: "",
         oldPassword: "",
       },
@@ -181,8 +183,11 @@ export default {
         } else if (this.userFrom.password == "") {
           this.$message.error("新密码不能为空！");
           return;
-        }
-        this.$axios
+        }else if (this.userFrom.password!==this.userFrom.surePassword){
+          this.$message.error("两次输入的密码不一致！")
+          return 
+        } 
+        this.$axios 
           .patch("/users/updatePassword", this.userFrom)
           .then((res) => {
             if (res.data.status == 200) {

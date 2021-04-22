@@ -13,6 +13,7 @@ class UserService {
     }
 
     async getUserByName(username) {
+        console.log(username)
         const statement = `
         SELECT * FROM user where username = ?;
         `;
@@ -22,6 +23,19 @@ class UserService {
         return result[0]; 
     } 
  
+    async findUserByName(username){
+        const statement = `
+        SELECT JSON_OBJECT('jobName',j.name) job , 
+        JSON_OBJECT('id',u.id,'username',u.username,'phone',u.phone,'jobId',job_id,'superior_name',u.superior_name) user
+        FROM job j
+        RIGHT JOIN user u ON j.id = u.job_id
+        WHERE username = ?
+        `
+        const result = await connection.execute(statement,[username]);
+        //result是一个数组 第一项是用户名 第二项是一堆其他的信息
+        //result[0]拿到的也是一个数组 
+        return result[0];
+    }
     async getJobId(user){  
         const {jobName} = user; 
         const statement = `
@@ -183,6 +197,16 @@ class UserService {
         `
         const result = await connection.execute(statement)
         return result[0]
+    }
+
+    //重置密码
+    async resetPassword(id){
+        const statement =`
+        UPDATE  user set password = 'e10adc3949ba59abbe56e057f20f883e' WHERE id = ?
+        `
+        const result = await connection.execute(statement,[id]);
+
+        return result;
     }
 }
 

@@ -249,7 +249,6 @@
           <el-select
             v-model="editCustomerParams.type"
             placeholder="客户类别"
-            @change="fliterClient"
             clearable
             class="clientType"
           >

@@ -47,7 +47,7 @@ customerRouter.patch('/username', changeUserName)
 
 //删除客户 
 customerRouter.delete('/:customerId', remove)
-
+  
 
 //获得某经理及其下属的客户
 customerRouter.get('/getMangerCustomer',getMangerCustomer)
